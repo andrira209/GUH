@@ -9,11 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@solana/wallet-adapter-base": "^0.9.18",
+    "@solana/wallet-adapter-ledger": "^0.9.20",
+    "@solana/wallet-adapter-phantom": "^0.9.17",
+    "@solana/wallet-adapter-react": "^0.15.20",
+    "@solana/wallet-adapter-react-ui": "^0.9.18",
+    "@solana/wallet-adapter-slope": "^0.5.16",
+    "@solana/wallet-adapter-solflare": "^0.6.18",
+    "@solana/wallet-adapter-sollet": "^0.11.12",
+    "@solana/wallet-adapter-torus": "^0.11.23",
+    "@solana/wallet-adapter-wallets": "^0.19.5",
+    "@solana/web3.js": "^1.66.2",
     "flowbite": "^1.5.3",
     "flowbite-react": "^0.3.2",
     "next": "13.0.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-icons": "^4.6.0"
   },
   "devDependencies": {
     "@types/node": "18.11.5",

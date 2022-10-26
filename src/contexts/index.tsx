@@ -1,6 +1,16 @@
+import dynamic from "next/dynamic";
 import { PropsWithChildren } from "react";
-import { ThemeProvider } from "./ThemeContext";
+import { Flowbite } from "flowbite-react";
+
+const SolanaProvider = dynamic(
+  () => import("./SolanaContext").then(({ SolanaProvider }) => SolanaProvider),
+  { ssr: false }
+);
 
 export default function AppContext({ children }: PropsWithChildren<{}>) {
-  return <ThemeProvider>{children}</ThemeProvider>;
+  return (
+    <Flowbite>
+      <SolanaProvider>{children}</SolanaProvider>
+    </Flowbite>
+  );
 }
