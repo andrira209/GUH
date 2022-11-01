@@ -10,7 +10,7 @@ export default function BackLink({ children, href }: PropsWithChildren<Props>) {
   return (
     <Link href={href} className="text-md dark:text-white">
       <HiArrowLeft />
-      <span className="hover:underline">{children}</span>
+      <span className="ml-2 hover:underline">{children}</span>
     </Link>
   );
 }
