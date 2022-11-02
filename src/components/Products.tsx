@@ -20,7 +20,7 @@ export default function Products({ submitTarget, enabled }: Props) {
           {products.map((product) => (
             <div
               key={product.id}
-              className="rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left p-8"
+              className="w-80 rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left p-8"
             >
               <h3>{product.name}</h3>
               <p>{product.description}</p>
@@ -36,7 +36,7 @@ export default function Products({ submitTarget, enabled }: Props) {
             </div>
           ))}
         </div>
-        <Button disabled={!enabled} color="light">
+        <Button type="submit" disabled={!enabled} color="light" className="w-80 self-center">
           <Image
             src={
               mode === "light"
