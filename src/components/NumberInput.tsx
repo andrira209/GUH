@@ -1,4 +1,4 @@
-import { Button, TextInput } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { KeyboardEvent, RefObject, useState } from "react";
 import { HiMinus, HiPlus } from "react-icons/hi";
 
@@ -28,22 +28,22 @@ export default function NumberInput({ name, formRef }: Props) {
   };
 
   return (
-    <div className="w-36 border-2 rounded-md flex flex-row items-center">
+    <div className="w-40 border-2 border-gray-400 rounded-md flex flex-row items-center">
       <Button
         tabIndex={-1}
-        className="basis-1/3 focus:outline-none"
+        className="basis-1/3 focus:outline-none ml-0.5"
         color="light"
         onClick={decrement}
         onKeyDown={handleKeyboard}
       >
         <HiMinus />
       </Button>
-      <TextInput
+      <input
         type="number"
         name={name}
         value={number}
         min={0}
-        className="w-12 border-none focus:ring-0 text-center"
+        className="w-12 border-none focus:ring-0 text-center bg-transparent"
         onChange={(e) => setNumber(Number(e.target.value))}
       />
       <Button

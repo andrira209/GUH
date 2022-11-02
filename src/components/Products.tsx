@@ -18,7 +18,10 @@ export default function Products({ submitTarget, enabled }: Props) {
       <div className="flex flex-col gap-8">
         <div className="grid grid-cols-0 justify-items-center gap-8">
           {products.map((product) => (
-            <div key={product.id} className="rounded-xl">
+            <div
+              key={product.id}
+              className="rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left p-8"
+            >
               <h3>{product.name}</h3>
               <p>{product.description}</p>
               <p className="my-4">
