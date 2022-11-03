@@ -20,6 +20,12 @@ export default function Header() {
         <DarkThemeToggle />
         <Navbar.Toggle />
       </div>
+      <Navbar.Toggle />
+      <Navbar.Collapse>
+        <Navbar.Link href="/">Home</Navbar.Link>
+        <Navbar.Link href="/faucet">Faucet</Navbar.Link>
+        <Navbar.Link href="/shop">Shop</Navbar.Link>
+      </Navbar.Collapse>
     </Navbar>
   )
 }
