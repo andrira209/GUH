@@ -4,10 +4,7 @@ import {
   getMint,
   getOrCreateAssociatedTokenAccount
 } from "@solana/spl-token";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
-  clusterApiUrl,
-  Connection,
   Keypair,
   PublicKey,
   SystemProgram,
@@ -22,7 +19,7 @@ import {
   MakeTransactionInputData,
   MakeTransactionOutputData
 } from "../../types";
-import calculatePrice from "../../utils/calculatePrice";
+import { calculatePrice, getConnection } from "../../utils";
 
 function get(res: NextApiResponse<MakeTransactionGetResponse>) {
   res.status(200).json({
@@ -54,7 +51,7 @@ async function post(
       return;
     }
 
-    const shopPrivateKey = process.env.SHOP_PRIVATE_KEY as string;
+    const shopPrivateKey = process.env.NEXT_PUBLIC_SHOP_PRIVATE_KEY as string;
     if (!shopPrivateKey) {
       res.status(400).json({ error: "Shop private key is not available" });
       return;
@@ -64,9 +61,7 @@ async function post(
     const buyerPublicKey = new PublicKey(account);
     const shopPublicKey = shopKeypair.publicKey;
 
-    const connection = new Connection(
-      clusterApiUrl(WalletAdapterNetwork.Devnet)
-    );
+    const connection = getConnection();
 
     const buyerTokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,

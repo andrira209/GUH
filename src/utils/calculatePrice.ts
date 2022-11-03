@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import { ParsedUrlQuery } from "querystring";
 import { products } from "../data/products";
 
-export default function calculatePrice(query: ParsedUrlQuery): BigNumber {
+export function calculatePrice(query: ParsedUrlQuery): BigNumber {
   let amount = new BigNumber(0);
   for (let [id, quantity] of Object.entries(query)) {
     const product = products.find((p) => p.id === id);

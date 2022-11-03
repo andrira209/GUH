@@ -16,7 +16,7 @@ import BackLink from "../components/BackLink";
 import ClipboardCopy from "../components/ClipboardCopy";
 import PageHeading from "../components/PageHeading";
 import { couponAddress, shopAddress } from "../data/addresses";
-import calculatePrice from "../utils/calculatePrice";
+import { calculatePrice } from "../utils";
 
 export default function Checkout() {
   const router = useRouter();

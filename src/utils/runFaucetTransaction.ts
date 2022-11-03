@@ -4,43 +4,32 @@ import {
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import {
+  Connection,
   Keypair,
   PublicKey,
+  sendAndConfirmTransaction,
   Transaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
-import { NextApiRequest, NextApiResponse } from "next";
-import { couponAddress } from "../../data/addresses";
-import {
-  ErrorOutput,
-  MakeTransactionGetResponse,
-  MakeTransactionInputData,
-  MakeTransactionOutputData,
-} from "../../types";
-import { getConnection } from "../../utils";
+import { couponAddress } from "../data/addresses";
 
-async function post(
-  req: NextApiRequest,
-  res: NextApiResponse<MakeTransactionOutputData | ErrorOutput>
+export async function runFaucetTransaction(
+  connection: Connection,
+  account: string
 ) {
   try {
-    const { account } = req.body as MakeTransactionInputData;
-    if (!account) {
-      res.status(400).json({ error: "No account provided" });
-      return;
-    }
-
     const shopPrivateKey = process.env.NEXT_PUBLIC_SHOP_PRIVATE_KEY as string;
     if (!shopPrivateKey) {
-      res.status(400).json({ error: "Shop private key is not available" });
-      return;
+      return {
+        status: false,
+        message: "Shop private key is not available",
+      };
     }
 
     const shopKeypair = Keypair.fromSecretKey(base58.decode(shopPrivateKey));
     const shopPublicKey = shopKeypair.publicKey;
     const buyerPublicKey = new PublicKey(account);
 
-    const connection = getConnection();
     const buyerCouponAccount = await getOrCreateAssociatedTokenAccount(
       connection,
       shopKeypair,
@@ -66,44 +55,32 @@ async function post(
       couponAddress,
       buyerCouponAccount.address,
       shopPublicKey,
-      2 * 10 ** 6,
+      2 * (10 ** 6),
       6
     );
 
     couponInstruction.keys.push({
       pubkey: buyerPublicKey,
-      isSigner: true,
+      isSigner: false,
       isWritable: false,
     });
 
     transaction.add(couponInstruction);
-    transaction.partialSign(shopKeypair);
 
-    const serializedTransaction = transaction
-      .serialize({ requireAllSignatures: false })
-      .toString("base64");
-
-    res.status(200).json({
-      transaction: serializedTransaction,
-      message: "Successful airdrop!",
+    await sendAndConfirmTransaction(connection, transaction, [shopKeypair], {
+      commitment: "confirmed",
     });
+
+    return {
+      status: true,
+      message: "Successful airdrop!",
+    };
   } catch (err) {
     console.error(err);
-
-    res.status(500).json({ error: "error creating transaction" });
-    return;
-  }
-}
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<
-    MakeTransactionGetResponse | MakeTransactionOutputData | ErrorOutput
-  >
-) {
-  if (req.method === "post") {
-    return post(req, res);
-  } else {
-    return res.status(405).json({ error: "Method not allowed" });
+    return {
+      status: false,
+      // @ts-ignore
+      message: err.toString(),
+    };
   }
 }
