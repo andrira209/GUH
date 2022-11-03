@@ -9,7 +9,7 @@ import {
 } from "@solana/pay";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { Keypair } from "@solana/web3.js";
-import { Button, Card, Label, Tabs, TextInput } from "flowbite-react";
+import { Card, Tabs } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef } from "react";
 import BackLink from "../components/BackLink";
@@ -119,7 +119,7 @@ export default function Checkout() {
               {/* div added to display the QR code */}
               <div
                 ref={qrRef}
-                className="w-64 border-2 border-gray-400 rounded-xl bg-white"
+                className="w-64 h-64 border-2 border-gray-400 rounded-xl bg-white"
               />
             </div>
           </Tabs.Item>
