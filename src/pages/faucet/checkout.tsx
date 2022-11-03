@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef } from "react";
 import BackLink from "../../components/BackLink";
 import ClipboardCopy from "../../components/ClipboardCopy";
 import PageHeading from "../../components/PageHeading";
-import { shopAddress, usdcAddress } from "../../data/addresses";
+import { shopAddress, tokenAddress } from "../../data/addresses";
 import calculatePrice from "../../utils/calculatePrice";
 
 export default function Checkout() {
@@ -70,7 +70,7 @@ export default function Checkout() {
           {
             recipient: shopAddress,
             amount,
-            splToken: usdcAddress,
+            splToken: tokenAddress,
             reference,
           },
           { commitment: "confirmed" }

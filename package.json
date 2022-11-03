@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@solana/pay": "^0.2.4",
+    "@solana/spl-token": "^0.3.6",
     "@solana/wallet-adapter-base": "^0.9.18",
     "@solana/wallet-adapter-ledger": "^0.9.20",
     "@solana/wallet-adapter-phantom": "^0.9.17",
@@ -22,6 +23,7 @@
     "@solana/wallet-adapter-wallets": "^0.19.5",
     "@solana/web3.js": "^1.66.2",
     "bignumber.js": "^9.1.0",
+    "bs58": "^5.0.0",
     "flowbite": "^1.5.3",
     "flowbite-react": "^0.3.2",
     "next": "13.0.0",
