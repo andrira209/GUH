@@ -1,8 +1,7 @@
 import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
-  getMint,
-  getOrCreateAssociatedTokenAccount
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
@@ -10,23 +9,22 @@ import {
   Connection,
   Keypair,
   PublicKey,
-  SystemProgram,
-  Transaction
+  Transaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
 import { NextApiRequest, NextApiResponse } from "next";
-import { couponAddress, tokenAddress } from "../../data/addresses";
+import { couponAddress } from "../../data/addresses";
 import {
   ErrorOutput,
   MakeTransactionGetResponse,
   MakeTransactionInputData,
-  MakeTransactionOutputData
+  MakeTransactionOutputData,
 } from "../../types";
 import calculatePrice from "../../utils/calculatePrice";
 
 function get(res: NextApiResponse<MakeTransactionGetResponse>) {
   res.status(200).json({
-    label: "Depositing DST",
+    label: "DWLT Token Faucet",
     icon: "https://i.postimg.cc/MZhCwyjk/logo.png",
   });
 }
@@ -61,26 +59,15 @@ async function post(
     }
 
     const shopKeypair = Keypair.fromSecretKey(base58.decode(shopPrivateKey));
-    const buyerPublicKey = new PublicKey(account);
     const shopPublicKey = shopKeypair.publicKey;
+    const buyerPublicKey = new PublicKey(account);
 
     const connection = new Connection(
       clusterApiUrl(WalletAdapterNetwork.Devnet)
     );
-
-    const buyerTokenAccount = await getOrCreateAssociatedTokenAccount(
+    const buyerCouponAccount = await getOrCreateAssociatedTokenAccount(
       connection,
       shopKeypair,
-      tokenAddress,
-      buyerPublicKey
-    );
-    const shopTokenAddress = await getAssociatedTokenAddress(
-      tokenAddress,
-      shopPublicKey
-    );
-    const tokenMint = await getMint(connection, tokenAddress);
-    const couponMint = await getMint(connection, couponAddress);
-    const buyerCouponAddress = await getAssociatedTokenAddress(
       couponAddress,
       buyerPublicKey
     );
@@ -91,73 +78,38 @@ async function post(
 
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash("finalized");
+
     const transaction = new Transaction({
       blockhash,
       lastValidBlockHeight,
       feePayer: shopPublicKey,
     });
 
-    // Create the instruction to send WL token (DWLT) from the buyer to the shop
     const couponInstruction = createTransferCheckedInstruction(
-      buyerCouponAddress,
-      couponAddress,
       shopCouponAddress,
-      buyerPublicKey,
-      1 * (10 ** couponMint.decimals),
+      couponAddress,
+      buyerCouponAccount.address,
+      shopPublicKey,
+      2 * 10 ** 6,
       6
     );
 
     couponInstruction.keys.push({
-      pubkey: new PublicKey(reference),
-      isSigner: false,
-      isWritable: false,
-    });
-
-    // Create the instruction to send token (DST) from the shop to the buyer
-    const tokenInstruction = createTransferCheckedInstruction(
-      shopTokenAddress,
-      tokenAddress,
-      buyerTokenAccount.address,
-      shopPublicKey,
-      amount.multipliedBy(10 ** tokenMint.decimals).toNumber(),
-      6
-    );
-
-    tokenInstruction.keys.push({
-      pubkey: shopPublicKey,
-      isSigner: true,
-      isWritable: false,
-    });
-
-    // Instraction to send SOL from the buyer to the shop
-    const transferSolInstruction = SystemProgram.transfer({
-      fromPubkey: shopPublicKey,
-      toPubkey: buyerPublicKey,
-      lamports: 1000000,
-    });
-
-    transferSolInstruction.keys.push({
       pubkey: buyerPublicKey,
       isSigner: true,
       isWritable: false,
     });
 
-    // Add all instructions to the transaction
-    transaction.add(
-      tokenInstruction,
-      couponInstruction,
-      transferSolInstruction
-    );
-
+    transaction.add(couponInstruction);
     transaction.partialSign(shopKeypair);
+
     const serializedTransaction = transaction
       .serialize({ requireAllSignatures: false })
       .toString("base64");
 
-    // Return the serialized transaction
     res.status(200).json({
       transaction: serializedTransaction,
-      message: "Thanks for your purchase! 🥰",
+      message: "Successful airdrop!",
     });
   } catch (err) {
     console.error(err);
