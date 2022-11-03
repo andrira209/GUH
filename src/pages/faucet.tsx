@@ -1,9 +1,9 @@
 import { useConnection } from "@solana/wallet-adapter-react";
-import { Badge, Button, TextInput } from "flowbite-react";
+import { Badge, Button, TextInput, useTheme } from "flowbite-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import SiteHeading from "../components/SiteHeading";
-import { runFaucetTransaction, validSolanaAddress } from "../utils";
+import { notifyLoading, notifyUpdate, runFaucetTransaction, validSolanaAddress } from "../utils";
 
 type FormProps = {
   account: string;
@@ -12,6 +12,7 @@ type FormProps = {
 export default function FaucetPage() {
   const [isValid, setIsValid] = useState(true);
   const { connection } = useConnection();
+  const { mode } = useTheme();
 
   const {
     handleSubmit,
@@ -21,8 +22,9 @@ export default function FaucetPage() {
   const onSubmit = async (data: FormProps) => {
     const { account } = data;
     if (validSolanaAddress(account)) {
+      const toastId = notifyLoading("Transaction in progress. Please wait...", mode);
       const result = await runFaucetTransaction(connection, account);
-      console.log(result);
+      notifyUpdate(toastId, result.message, result.status ? "success" : "error");
     } else {
       setIsValid(false);
     }
