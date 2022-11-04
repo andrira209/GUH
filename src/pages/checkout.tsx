@@ -117,7 +117,7 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onCheckoutManually = async () => {
+  const onDepositManually = async () => {
     const toastId = notifyLoading(
       "Transaction in progress. Please wait...",
       mode
@@ -167,10 +167,10 @@ export default function Checkout() {
               </p>
               {wallet.connected ? (
                 <Button
-                  onClick={onCheckoutManually}
+                  onClick={onDepositManually}
                   disabled={!wallet.publicKey || amount.toNumber() === 0}
                 >
-                  Checkout
+                  Deposit
                 </Button>
               ) : (
                 <Button onClick={() => setVisible(true)}>Connect</Button>

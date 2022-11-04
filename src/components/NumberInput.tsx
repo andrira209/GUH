@@ -28,33 +28,34 @@ export default function NumberInput({ name, formRef }: Props) {
   };
 
   return (
-    <div className="w-40 border-2 border-gray-400 rounded-md flex flex-row items-center">
-      <Button
+    <div className="w-40 border-2 border-gray-50 rounded-md flex flex-row items-center">
+      <button
+        type="button"
         tabIndex={-1}
         className="basis-1/3 focus:outline-none ml-0.5"
-        color="light"
         onClick={decrement}
         onKeyDown={handleKeyboard}
       >
-        <HiMinus />
-      </Button>
+        <HiMinus className="m-auto" />
+      </button>
       <input
         type="number"
         name={name}
         value={number}
         min={0}
-        className="w-12 border-none focus:ring-0 text-center bg-transparent"
+        className="w-12 border-none focus:ring-0 text-center bg-gray-50"
         onChange={(e) => setNumber(Number(e.target.value))}
       />
-      <Button
+      <button
+        type="button"
         tabIndex={-1}
         className="basis-1/3 focus:outline-none"
         color="light"
         onClick={increment}
         onKeyDown={handleKeyboard}
       >
-        <HiPlus />
-      </Button>
+        <HiPlus className="m-auto" />
+      </button>
     </div>
   );
 }
