@@ -7,20 +7,29 @@ import {
   validateTransfer,
   ValidateTransferError,
 } from "@solana/pay";
-import { useConnection } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Keypair } from "@solana/web3.js";
-import { Card, Tabs } from "flowbite-react";
+import { Button, Card, Tabs, useTheme } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef } from "react";
 import BackLink from "../components/BackLink";
 import ClipboardCopy from "../components/ClipboardCopy";
 import PageHeading from "../components/PageHeading";
 import { couponAddress, shopAddress } from "../data/addresses";
-import { calculatePrice } from "../utils";
+import {
+  calculatePrice,
+  notifyLoading,
+  notifyUpdate,
+  runDepositTransaction,
+} from "../utils";
 
 export default function Checkout() {
   const router = useRouter();
   const { connection } = useConnection();
+  const wallet = useWallet();
+  const { setVisible } = useWalletModal();
+  const { mode } = useTheme();
 
   // ref to a dev where you will show QR code
   const qrRef = useRef<HTMLDivElement>(null);
@@ -76,13 +85,14 @@ export default function Checkout() {
         const signatureInfo = await findReference(connection, reference, {
           finality: "confirmed",
         });
+        console.log(signatureInfo);
         // Validate that the transaction has the expected recipient, amount and SPL token
         await validateTransfer(
           connection,
           signatureInfo.signature,
           {
             recipient: shopAddress,
-            amount,
+            amount: amount,
             splToken: couponAddress,
             reference,
           },
@@ -108,10 +118,28 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onCheckoutManually = async () => {
+    const toastId = notifyLoading(
+      "Transaction in progress. Please wait...",
+      mode
+    );
+    const result = await runDepositTransaction(
+      connection,
+      wallet,
+      amount,
+      reference
+    );
+    notifyUpdate(
+      toastId,
+      result.message,
+      result.status ? "success" : "error"
+    );
+  };
+
   return (
     <div className="relative flex flex-col items-center gap-8">
       <BackLink href="/">Cancel</BackLink>
-      <PageHeading>Deposit ${amount.toString()}</PageHeading>
+      <PageHeading>Deposit {amount.toString()} DST</PageHeading>
       <Card>
         <Tabs.Group style="underline" className="w-96" id="checkout-tab">
           <Tabs.Item title="Scan">
@@ -125,20 +153,29 @@ export default function Checkout() {
           </Tabs.Item>
           <Tabs.Item title="Manual">
             <p className="text-md text-gray-500 dark:text-gray-400">
-              To complete the payment, please send the fund to the address
-              below.
+              Checkout payment manually
             </p>
-            <div>
-              <p className="mt-4 mb-2 block text-gray-700 dark:text-gray-100">
-                Copy Address
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="mt-4 mb-2 block text-gray-700 dark:text-gray-100">
+                  Shop Address
+                </p>
+                <ClipboardCopy copyText={shopAddress.toString()} />
+              </div>
+              <p className="my-2 block text-gray-700 dark:text-gray-100">
+                Amount:{" "}
+                <span className="font-semibold">{amount.toString()} DST</span>
               </p>
-              <ClipboardCopy copyText={shopAddress.toString()} />
-            </div>
-            <div>
-              <p className="mt-4 mb-2 block text-gray-700 dark:text-gray-100">
-                Amount
-              </p>
-              <ClipboardCopy copyText={amount.toString()} />
+              {wallet.connected ? (
+                <Button
+                  onClick={onCheckoutManually}
+                  disabled={!wallet.publicKey || amount.toNumber() === 0}
+                >
+                  Checkout
+                </Button>
+              ) : (
+                <Button onClick={() => setVisible(true)}>Connect</Button>
+              )}
             </div>
           </Tabs.Item>
         </Tabs.Group>

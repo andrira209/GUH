@@ -15,3 +15,8 @@ export type MakeTransactionOutputData = {
 export type ErrorOutput = {
   error: string;
 };
+
+export type MyTransactionStatus = {
+  status: boolean;
+  message: string;
+};

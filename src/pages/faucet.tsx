@@ -3,7 +3,12 @@ import { Badge, Button, TextInput, useTheme } from "flowbite-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import SiteHeading from "../components/SiteHeading";
-import { notifyLoading, notifyUpdate, runFaucetTransaction, validSolanaAddress } from "../utils";
+import {
+  notifyLoading,
+  notifyUpdate,
+  runFaucetTransaction,
+  validSolanaAddress
+} from "../utils";
 
 type FormProps = {
   account: string;
@@ -22,9 +27,16 @@ export default function FaucetPage() {
   const onSubmit = async (data: FormProps) => {
     const { account } = data;
     if (validSolanaAddress(account)) {
-      const toastId = notifyLoading("Transaction in progress. Please wait...", mode);
+      const toastId = notifyLoading(
+        "Transaction in progress. Please wait...",
+        mode
+      );
       const result = await runFaucetTransaction(connection, account);
-      notifyUpdate(toastId, result.message, result.status ? "success" : "error");
+      notifyUpdate(
+        toastId,
+        result.message,
+        result.status ? "success" : "error"
+      );
     } else {
       setIsValid(false);
     }

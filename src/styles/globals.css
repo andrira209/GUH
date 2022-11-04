@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  
-}
-
 /* Hide input number spinners */
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
@@ -16,4 +12,12 @@ input[type='number']::-webkit-outer-spin-button {
 
 #checkout-tab button {
   width: 50%;
+}
+
+.wallet-adapter-button.my-button {
+  @apply bg-blue-600 !important;
+}
+
+.wallet-adapter-button.my-button:hover {
+  @apply bg-slate-900 !important;
 }
