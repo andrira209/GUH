@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import Layout from "../components/Layout";
 import AppContext from "../contexts";
 
+import "@solana/wallet-adapter-react-ui/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/globals.css";
 

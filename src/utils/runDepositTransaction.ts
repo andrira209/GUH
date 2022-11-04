@@ -2,66 +2,60 @@ import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
   getMint,
-  getOrCreateAssociatedTokenAccount
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
+import { WalletContextState } from "@solana/wallet-adapter-react";
 import {
+  Connection,
   Keypair,
   PublicKey,
   SystemProgram,
-  Transaction
+  Transaction,
 } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 import base58 from "bs58";
-import { NextApiRequest, NextApiResponse } from "next";
-import { couponAddress, tokenAddress } from "../../data/addresses";
-import {
-  ErrorOutput,
-  MakeTransactionGetResponse,
-  MakeTransactionInputData,
-  MakeTransactionOutputData
-} from "../../types";
-import { calculatePrice, getConnection } from "../../utils";
+import { couponAddress, tokenAddress } from "../data/addresses";
+import { MyTransactionStatus } from "../types";
 
-function get(res: NextApiResponse<MakeTransactionGetResponse>) {
-  res.status(200).json({
-    label: "Depositing DST",
-    icon: "https://i.postimg.cc/MZhCwyjk/logo.png",
-  });
-}
-
-async function post(
-  req: NextApiRequest,
-  res: NextApiResponse<MakeTransactionOutputData | ErrorOutput>
-) {
+export async function runDepositTransaction(
+  connection: Connection,
+  wallet: WalletContextState,
+  amount: BigNumber,
+  reference: PublicKey
+): Promise<MyTransactionStatus> {
   try {
-    const amount = calculatePrice(req.query);
     if (amount.toNumber() === 0) {
-      res.status(400).json({ error: "Can't checkout with charge of 0" });
-      return;
+      return {
+        status: false,
+        message: "Can't checkout with charge of 0",
+      };
     }
 
-    const { reference } = req.query;
+    if (!wallet.publicKey) {
+      return {
+        status: false,
+        message: "No account provided",
+      };
+    }
+
     if (!reference) {
-      res.status(400).json({ error: "No reference provided" });
-      return;
-    }
-
-    const { account } = req.body as MakeTransactionInputData;
-    if (!account) {
-      res.status(400).json({ error: "No account provided" });
-      return;
+      return {
+        status: false,
+        message: "No reference provided",
+      };
     }
 
     const shopPrivateKey = process.env.NEXT_PUBLIC_SHOP_PRIVATE_KEY as string;
     if (!shopPrivateKey) {
-      res.status(400).json({ error: "Shop private key is not available" });
-      return;
+      return {
+        status: false,
+        message: "Shop private key is not available",
+      };
     }
 
     const shopKeypair = Keypair.fromSecretKey(base58.decode(shopPrivateKey));
-    const buyerPublicKey = new PublicKey(account);
+    const buyerPublicKey = wallet.publicKey;
     const shopPublicKey = shopKeypair.publicKey;
-
-    const connection = getConnection();
 
     const buyerTokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
@@ -103,7 +97,7 @@ async function post(
     );
 
     couponInstruction.keys.push({
-      pubkey: new PublicKey(reference),
+      pubkey: reference,
       isSigner: false,
       isWritable: false,
     });
@@ -139,40 +133,28 @@ async function post(
 
     // Add all instructions to the transaction
     transaction.add(
-      couponInstruction,
+      tokenInstruction,
       transferSolInstruction,
-      tokenInstruction
+      couponInstruction
     );
 
     transaction.partialSign(shopKeypair);
-    const serializedTransaction = transaction
-      .serialize({ requireAllSignatures: false })
-      .toString("base64");
 
-    // Return the serialized transaction
-    res.status(200).json({
-      transaction: serializedTransaction,
-      message: "Thanks for your purchase! 🥰",
+    await wallet.sendTransaction(transaction, connection, {
+      preflightCommitment: "confirmed",
     });
+
+    return {
+      status: true,
+      message: "Thanks for your purchase! 🥰",
+    };
   } catch (err) {
     console.error(err);
 
-    res.status(500).json({ error: "error creating transaction" });
-    return;
-  }
-}
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<
-    MakeTransactionGetResponse | MakeTransactionOutputData | ErrorOutput
-  >
-) {
-  if (req.method === "get") {
-    return get(res);
-  } else if (req.method === "post") {
-    return post(req, res);
-  } else {
-    return res.status(405).json({ error: "Method not allowed" });
+    return {
+      status: false,
+      // @ts-ignore
+      message: err.toString(),
+    };
   }
 }

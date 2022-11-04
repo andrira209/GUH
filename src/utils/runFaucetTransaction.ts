@@ -1,22 +1,23 @@
 import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount,
+  getOrCreateAssociatedTokenAccount
 } from "@solana/spl-token";
 import {
   Connection,
   Keypair,
   PublicKey,
   sendAndConfirmTransaction,
-  Transaction,
+  Transaction
 } from "@solana/web3.js";
 import base58 from "bs58";
 import { couponAddress } from "../data/addresses";
+import { MyTransactionStatus } from "../types";
 
 export async function runFaucetTransaction(
   connection: Connection,
   account: string
-) {
+): Promise<MyTransactionStatus> {
   try {
     const shopPrivateKey = process.env.NEXT_PUBLIC_SHOP_PRIVATE_KEY as string;
     if (!shopPrivateKey) {
@@ -55,7 +56,7 @@ export async function runFaucetTransaction(
       couponAddress,
       buyerCouponAccount.address,
       shopPublicKey,
-      2 * (10 ** 6),
+      2 * 10 ** 6,
       6
     );
 
@@ -73,7 +74,7 @@ export async function runFaucetTransaction(
 
     return {
       status: true,
-      message: "Successful airdrop!",
+      message: `Successful airdrop 2 DWLT to ${buyerPublicKey.toString()}`,
     };
   } catch (err) {
     console.error(err);
