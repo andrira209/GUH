@@ -74,7 +74,7 @@ export async function runFaucetTransaction(
 
     return {
       status: true,
-      message: "Successful airdrop!",
+      message: `Successful airdrop 2 DWLT to ${buyerPublicKey.toString()}`,
     };
   } catch (err) {
     console.error(err);

@@ -2,7 +2,7 @@ import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
   getMint,
-  getOrCreateAssociatedTokenAccount
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import {
@@ -10,7 +10,7 @@ import {
   Keypair,
   PublicKey,
   SystemProgram,
-  Transaction
+  Transaction,
 } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import base58 from "bs58";
@@ -93,7 +93,7 @@ export async function runDepositTransaction(
       shopCouponAddress,
       buyerPublicKey,
       amount.multipliedBy(10 ** couponMint.decimals).toNumber(),
-      6
+      couponMint.decimals
     );
 
     couponInstruction.keys.push({
@@ -109,7 +109,7 @@ export async function runDepositTransaction(
       buyerTokenAccount.address,
       shopPublicKey,
       amount.multipliedBy(10 ** tokenMint.decimals).toNumber(),
-      6
+      tokenMint.decimals
     );
 
     tokenInstruction.keys.push({
@@ -134,8 +134,8 @@ export async function runDepositTransaction(
     // Add all instructions to the transaction
     transaction.add(
       tokenInstruction,
-      couponInstruction,
-      transferSolInstruction
+      transferSolInstruction,
+      couponInstruction
     );
 
     transaction.partialSign(shopKeypair);

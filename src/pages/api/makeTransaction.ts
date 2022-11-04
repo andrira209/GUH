@@ -99,7 +99,7 @@ async function post(
       shopCouponAddress,
       buyerPublicKey,
       amount.multipliedBy(10 ** couponMint.decimals).toNumber(),
-      6
+      couponMint.decimals
     );
 
     couponInstruction.keys.push({
@@ -115,7 +115,7 @@ async function post(
       buyerTokenAccount.address,
       shopPublicKey,
       amount.multipliedBy(10 ** tokenMint.decimals).toNumber(),
-      6
+      tokenMint.decimals
     );
 
     tokenInstruction.keys.push({
@@ -139,9 +139,9 @@ async function post(
 
     // Add all instructions to the transaction
     transaction.add(
-      tokenInstruction,
       couponInstruction,
-      transferSolInstruction
+      transferSolInstruction,
+      tokenInstruction
     );
 
     transaction.partialSign(shopKeypair);

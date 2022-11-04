@@ -9,7 +9,7 @@ import {
 } from "@solana/pay";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, Transaction } from "@solana/web3.js";
 import { Button, Card, Tabs, useTheme } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef } from "react";
@@ -85,7 +85,6 @@ export default function Checkout() {
         const signatureInfo = await findReference(connection, reference, {
           finality: "confirmed",
         });
-        console.log(signatureInfo);
         // Validate that the transaction has the expected recipient, amount and SPL token
         await validateTransfer(
           connection,
