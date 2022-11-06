@@ -13,16 +13,16 @@ import { Keypair } from "@solana/web3.js";
 import { Button, Card, Tabs, useTheme } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef } from "react";
-import BackLink from "../components/BackLink";
-import ClipboardCopy from "../components/ClipboardCopy";
-import PageHeading from "../components/PageHeading";
-import { couponAddress, shopAddress } from "../data/addresses";
+import BackLink from "../../components/BackLink";
+import ClipboardCopy from "../../components/ClipboardCopy";
+import PageHeading from "../../components/PageHeading";
+import { couponAddress, shopAddress } from "../../data/addresses";
 import {
   calculatePrice,
   notifyLoading,
   notifyUpdate,
   runDepositTransaction,
-} from "../utils";
+} from "../../utils";
 
 export default function Checkout() {
   const router = useRouter();
@@ -62,11 +62,11 @@ export default function Checkout() {
     const { location } = window;
     const apiUrl = `${location.protocol}//${
       location.host
-    }/api/makeTransaction?${searchParams.toString()}`;
+    }/api/makeDonateTransaction?${searchParams.toString()}`;
     const urlParams: TransactionRequestURLFields = {
       link: new URL(apiUrl),
-      label: "Depositing DST",
-      message: "Thanks for your purchase!",
+      label: "Donate DWLT",
+      message: "Thanks for your donate!",
     };
 
     const solanaUrl = encodeURL(urlParams);
@@ -117,7 +117,7 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onDepositManually = async () => {
+  const onDonateManually = async () => {
     const toastId = notifyLoading(
       "Transaction in progress. Please wait...",
       mode
@@ -167,10 +167,10 @@ export default function Checkout() {
               </p>
               {wallet.connected ? (
                 <Button
-                  onClick={onDepositManually}
+                  onClick={onDonateManually}
                   disabled={!wallet.publicKey || amount.toNumber() === 0}
                 >
-                  Deposit
+                  Donate
                 </Button>
               ) : (
                 <Button onClick={() => setVisible(true)}>Connect</Button>
