@@ -19,10 +19,10 @@ export default function Donate({ submitTarget, enabled }: Props) {
           <div
             className="w-80 rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left p-8"
           >
-            <h3>Donate DST</h3>
+            <h3>Donate SOL</h3>
             <p>Welcome to donate in Solana Pay</p>
             <div className="mt-4">
-              <NumberInput name="DST" formRef={formRef} />
+              <NumberInput name="SOL" formRef={formRef} />
             </div>
           </div>
         </div>
