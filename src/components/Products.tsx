@@ -36,7 +36,12 @@ export default function Products({ submitTarget, enabled }: Props) {
             </div>
           ))}
         </div>
-        <Button type="submit" disabled={!enabled} color="light" className="w-80 self-center">
+        <Button
+          type="submit"
+          disabled={!enabled}
+          color="light"
+          className="w-80 self-center"
+        >
           <Image
             src={
               mode === "light"

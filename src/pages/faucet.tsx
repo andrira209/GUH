@@ -7,7 +7,7 @@ import {
   notifyLoading,
   notifyUpdate,
   runFaucetTransaction,
-  validSolanaAddress
+  validSolanaAddress,
 } from "../utils";
 
 type FormProps = {

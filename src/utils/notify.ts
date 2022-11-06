@@ -1,4 +1,4 @@
-import { Id, Slide, Theme, toast, TypeOptions } from "react-toastify";
+import { Id, Slide, toast, TypeOptions } from "react-toastify";
 
 export const notify = (
   message: string,

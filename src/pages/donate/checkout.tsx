@@ -16,7 +16,7 @@ import { useEffect, useMemo, useRef } from "react";
 import BackLink from "../../components/BackLink";
 import ClipboardCopy from "../../components/ClipboardCopy";
 import PageHeading from "../../components/PageHeading";
-import { shopAddress, solAddress } from "../../data/addresses";
+import { shopAddress } from "../../data/addresses";
 import {
   calculateSolPrice,
   notifyLoading,
@@ -127,11 +127,7 @@ export default function Checkout() {
       amount,
       reference
     );
-    notifyUpdate(
-      toastId,
-      result.message,
-      result.status ? "success" : "error"
-    );
+    notifyUpdate(toastId, result.message, result.status ? "success" : "error");
   };
 
   return (

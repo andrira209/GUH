@@ -3,7 +3,7 @@ import {
   LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
-  Transaction,
+  Transaction
 } from "@solana/web3.js";
 import base58 from "bs58";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -11,7 +11,7 @@ import {
   ErrorOutput,
   MakeTransactionGetResponse,
   MakeTransactionInputData,
-  MakeTransactionOutputData,
+  MakeTransactionOutputData
 } from "../../types";
 import { calculateSolPrice, getConnection } from "../../utils";
 

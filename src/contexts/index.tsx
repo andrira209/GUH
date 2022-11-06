@@ -1,6 +1,6 @@
+import { Flowbite } from "flowbite-react";
 import dynamic from "next/dynamic";
 import { PropsWithChildren } from "react";
-import { Flowbite } from "flowbite-react";
 
 const SolanaProvider = dynamic(
   () => import("./SolanaContext").then(({ SolanaProvider }) => SolanaProvider),
