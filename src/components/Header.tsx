@@ -29,6 +29,7 @@ export default function Header() {
         <Navbar.Link href="/">Home</Navbar.Link>
         <Navbar.Link href="/faucet">Faucet</Navbar.Link>
         <Navbar.Link href="/shop">Shop</Navbar.Link>
+        <Navbar.Link href="/donate">Donate</Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
   );

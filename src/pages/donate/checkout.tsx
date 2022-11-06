@@ -13,16 +13,16 @@ import { Keypair } from "@solana/web3.js";
 import { Button, Card, Tabs, useTheme } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef } from "react";
-import BackLink from "../components/BackLink";
-import ClipboardCopy from "../components/ClipboardCopy";
-import PageHeading from "../components/PageHeading";
-import { couponAddress, shopAddress } from "../data/addresses";
+import BackLink from "../../components/BackLink";
+import ClipboardCopy from "../../components/ClipboardCopy";
+import PageHeading from "../../components/PageHeading";
+import { shopAddress, solAddress } from "../../data/addresses";
 import {
-  calculatePrice,
+  calculateSolPrice,
   notifyLoading,
   notifyUpdate,
-  runDepositTransaction,
-} from "../utils";
+  runDonateTransaction,
+} from "../../utils";
 
 export default function Checkout() {
   const router = useRouter();
@@ -34,12 +34,12 @@ export default function Checkout() {
   // ref to a dev where you will show QR code
   const qrRef = useRef<HTMLDivElement>(null);
 
-  const amount = useMemo(() => calculatePrice(router.query), [router.query]);
+  const amount = useMemo(() => calculateSolPrice(router.query), [router.query]);
 
   // Unique address that we can listen for payments to
   const reference = useMemo(() => Keypair.generate().publicKey, []);
 
-  // Read the URL query (which includes our chosen products)
+  // Read the URL query
   const searchParams = useMemo(
     () => new URLSearchParams({ reference: reference.toString() }),
     [reference]
@@ -62,11 +62,11 @@ export default function Checkout() {
     const { location } = window;
     const apiUrl = `${location.protocol}//${
       location.host
-    }/api/makeTransaction?${searchParams.toString()}`;
+    }/api/makeDonateTransaction?${searchParams.toString()}`;
     const urlParams: TransactionRequestURLFields = {
       link: new URL(apiUrl),
-      label: "Depositing DST",
-      message: "Thanks for your purchase!",
+      label: "Donate SOL",
+      message: "Thanks for your donate!",
     };
 
     const solanaUrl = encodeURL(urlParams);
@@ -85,20 +85,19 @@ export default function Checkout() {
         const signatureInfo = await findReference(connection, reference, {
           finality: "confirmed",
         });
-        // Validate that the transaction has the expected recipient, amount and SPL token
+        // Validate that the transaction has the expected recipient, amount
         await validateTransfer(
           connection,
           signatureInfo.signature,
           {
             recipient: shopAddress,
             amount: amount,
-            splToken: couponAddress,
             reference,
           },
           { commitment: "confirmed" }
         );
 
-        router.push("/confirmed");
+        router.push("/donate/confirmed");
       } catch (err) {
         if (err instanceof FindReferenceError) {
           // No transaction found yet, ignore this error
@@ -117,12 +116,12 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onDepositManually = async () => {
+  const onDonateManually = async () => {
     const toastId = notifyLoading(
       "Transaction in progress. Please wait...",
       mode
     );
-    const result = await runDepositTransaction(
+    const result = await runDonateTransaction(
       connection,
       wallet,
       amount,
@@ -137,8 +136,8 @@ export default function Checkout() {
 
   return (
     <div className="relative flex flex-col items-center gap-8">
-      <BackLink href="/">Cancel</BackLink>
-      <PageHeading>Deposit {amount.toString()} DST</PageHeading>
+      <BackLink href="/donate">Cancel</BackLink>
+      <PageHeading>Donate {amount.toString()} SOL</PageHeading>
       <Card>
         <Tabs.Group style="underline" className="w-96" id="checkout-tab">
           <Tabs.Item title="Scan">
@@ -157,20 +156,20 @@ export default function Checkout() {
             <div className="flex flex-col gap-4">
               <div>
                 <p className="mt-4 mb-2 block text-gray-700 dark:text-gray-100">
-                  Shop Address
+                  Destination Address
                 </p>
                 <ClipboardCopy copyText={shopAddress.toString()} />
               </div>
               <p className="my-2 block text-gray-700 dark:text-gray-100">
                 Amount:{" "}
-                <span className="font-semibold">{amount.toString()} DST</span>
+                <span className="font-semibold">{amount.toString()} SOL</span>
               </p>
               {wallet.connected ? (
                 <Button
-                  onClick={onDepositManually}
+                  onClick={onDonateManually}
                   disabled={!wallet.publicKey || amount.toNumber() === 0}
                 >
-                  Deposit
+                  Donate
                 </Button>
               ) : (
                 <Button onClick={() => setVisible(true)}>Connect</Button>
