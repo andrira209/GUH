@@ -2,24 +2,29 @@ import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
   getMint,
-  getOrCreateAssociatedTokenAccount
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import {
   Keypair,
   PublicKey,
   SystemProgram,
-  Transaction
+  Transaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
 import { NextApiRequest, NextApiResponse } from "next";
-import { couponAddress, tokenAddress } from "../../data/addresses";
+import { tokenAddress } from "../../data/addresses";
 import {
   ErrorOutput,
   MakeTransactionGetResponse,
   MakeTransactionInputData,
-  MakeTransactionOutputData
+  MakeTransactionOutputData,
 } from "../../types";
-import { calculatePrice, getConnection } from "../../utils";
+import {
+  calculatePrice,
+  createMetaplexMintInstruction,
+  createSetupInstructions,
+  getConnection,
+} from "../../utils";
 
 function get(res: NextApiResponse<MakeTransactionGetResponse>) {
   res.status(200).json({
@@ -63,6 +68,7 @@ async function post(
 
     const connection = getConnection();
 
+    const tokenMint = await getMint(connection, tokenAddress);
     const buyerTokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
       shopKeypair,
@@ -73,17 +79,6 @@ async function post(
       tokenAddress,
       shopPublicKey
     );
-    const tokenMint = await getMint(connection, tokenAddress);
-    const couponMint = await getMint(connection, couponAddress);
-    const buyerCouponAddress = await getAssociatedTokenAddress(
-      couponAddress,
-      buyerPublicKey
-    );
-    const shopCouponAddress = await getAssociatedTokenAddress(
-      couponAddress,
-      shopPublicKey
-    );
-
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash("finalized");
     const transaction = new Transaction({
@@ -92,8 +87,8 @@ async function post(
       feePayer: shopPublicKey,
     });
 
-    // Create the instruction to send token (DST) from the buyer to the shop
-    const tokenInstruction = createTransferCheckedInstruction(
+    // Instruction to send the token from the buyer to the shop
+    const transferInstruction = createTransferCheckedInstruction(
       buyerTokenAccount.address,
       tokenAddress,
       shopTokenAddress,
@@ -102,17 +97,17 @@ async function post(
       tokenMint.decimals
     );
 
-    tokenInstruction.keys.push({
+    transferInstruction.keys.push({
       pubkey: new PublicKey(reference),
       isSigner: false,
       isWritable: false,
     });
 
-    // Instraction to send SOL from the buyer to the shop
+    // Instruction to send SOL from the buyer to the shop
     const transferSolInstruction = SystemProgram.transfer({
       fromPubkey: buyerPublicKey,
-      toPubkey: shopPublicKey,
       lamports: 1000000,
+      toPubkey: shopPublicKey,
     });
 
     transferSolInstruction.keys.push({
@@ -121,13 +116,32 @@ async function post(
       isWritable: false,
     });
 
+    const mint = Keypair.generate();
+
+    // Create the mint setup instrauction
+    const mintSetupInstructions = await createSetupInstructions(
+      connection,
+      shopPublicKey,
+      buyerPublicKey,
+      mint.publicKey
+    );
+
+    // Create the mint NFT instruction
+    const mintNFTInstruction = await createMetaplexMintInstruction(
+      shopPublicKey,
+      buyerPublicKey,
+      mint.publicKey
+    );
+
     // Add all instructions to the transaction
     transaction.add(
       transferSolInstruction,
-      tokenInstruction
+      ...mintSetupInstructions,
+      mintNFTInstruction,
+      transferInstruction
     );
 
-    transaction.partialSign(shopKeypair);
+    transaction.partialSign(mint, shopKeypair);
     const serializedTransaction = transaction
       .serialize({ requireAllSignatures: false })
       .toString("base64");
@@ -135,7 +149,7 @@ async function post(
     // Return the serialized transaction
     res.status(200).json({
       transaction: serializedTransaction,
-      message: "Thanks for your purchase! 🥰",
+      message: "Thanks for your mint! 🥰",
     });
   } catch (err) {
     console.error(err);
