@@ -1,8 +1,10 @@
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { DarkThemeToggle, Navbar } from "flowbite-react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function Header() {
+  const router = useRouter();
   return (
     <Navbar
       fluid={true}
@@ -22,14 +24,35 @@ export default function Header() {
       </Navbar.Brand>
       <div className="flex md:order-2 gap-4">
         <DarkThemeToggle />
-        <WalletMultiButton className="my-button"/>
+        <WalletMultiButton className="my-button" />
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
-        <Navbar.Link href="/">Home</Navbar.Link>
-        <Navbar.Link href="/faucet">Faucet</Navbar.Link>
-        <Navbar.Link href="/shop">Shop</Navbar.Link>
-        <Navbar.Link href="/donate">Donate</Navbar.Link>
+        <Navbar.Link
+          href="/"
+          active={
+            router.pathname === "/" ||
+            router.pathname === "/checkout" ||
+            router.pathname === "/confirmed"
+          }
+        >
+          Home
+        </Navbar.Link>
+        <Navbar.Link
+          href="/faucet"
+          active={router.pathname.startsWith("/faucet")}
+        >
+          Faucet
+        </Navbar.Link>
+        <Navbar.Link href="/mint" active={router.pathname.startsWith("/mint")}>
+          Mint
+        </Navbar.Link>
+        <Navbar.Link
+          href="/donate"
+          active={router.pathname.startsWith("/donate")}
+        >
+          Donate
+        </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
   );

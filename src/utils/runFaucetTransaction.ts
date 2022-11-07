@@ -1,14 +1,14 @@
 import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import {
   Connection,
   Keypair,
   PublicKey,
   sendAndConfirmTransaction,
-  Transaction
+  Transaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
 import { couponAddress } from "../data/addresses";

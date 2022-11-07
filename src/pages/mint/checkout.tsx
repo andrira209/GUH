@@ -14,14 +14,13 @@ import { Button, Card, Tabs, useTheme } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef } from "react";
 import BackLink from "../../components/BackLink";
-import ClipboardCopy from "../../components/ClipboardCopy";
 import PageHeading from "../../components/PageHeading";
-import { shopAddress } from "../../data/addresses";
+import { couponAddress, shopAddress } from "../../data/addresses";
 import {
-  calculateSolPrice,
+  calculatePrice,
   notifyLoading,
   notifyUpdate,
-  runDonateTransaction,
+  runMintTransaction,
 } from "../../utils";
 
 export default function Checkout() {
@@ -34,12 +33,12 @@ export default function Checkout() {
   // ref to a dev where you will show QR code
   const qrRef = useRef<HTMLDivElement>(null);
 
-  const amount = useMemo(() => calculateSolPrice(router.query), [router.query]);
+  const amount = useMemo(() => calculatePrice(router.query), [router.query]);
 
   // Unique address that we can listen for payments to
   const reference = useMemo(() => Keypair.generate().publicKey, []);
 
-  // Read the URL query
+  // Read the URL query (which includes our chosen products)
   const searchParams = useMemo(
     () => new URLSearchParams({ reference: reference.toString() }),
     [reference]
@@ -62,11 +61,11 @@ export default function Checkout() {
     const { location } = window;
     const apiUrl = `${location.protocol}//${
       location.host
-    }/api/makeDonateTransaction?${searchParams.toString()}`;
+    }/api/makeMintTransaction?${searchParams.toString()}`;
     const urlParams: TransactionRequestURLFields = {
       link: new URL(apiUrl),
-      label: "Donate SOL",
-      message: "Thanks for your donate!",
+      label: "Mint NFT",
+      message: "Thanks for your mint!",
     };
 
     const solanaUrl = encodeURL(urlParams);
@@ -85,19 +84,20 @@ export default function Checkout() {
         const signatureInfo = await findReference(connection, reference, {
           finality: "confirmed",
         });
-        // Validate that the transaction has the expected recipient, amount
+        // Validate that the transaction has the expected recipient, amount and SPL token
         await validateTransfer(
           connection,
           signatureInfo.signature,
           {
             recipient: shopAddress,
             amount: amount,
+            splToken: couponAddress,
             reference,
           },
           { commitment: "confirmed" }
         );
 
-        router.push("/donate/confirmed");
+        router.push("/confirmed");
       } catch (err) {
         if (err instanceof FindReferenceError) {
           // No transaction found yet, ignore this error
@@ -116,12 +116,12 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onDonateManually = async () => {
+  const onMintManually = async () => {
     const toastId = notifyLoading(
       "Transaction in progress. Please wait...",
       mode
     );
-    const result = await runDonateTransaction(
+    const result = await runMintTransaction(
       connection,
       wallet,
       amount,
@@ -132,8 +132,8 @@ export default function Checkout() {
 
   return (
     <div className="relative flex flex-col items-center gap-8">
-      <BackLink href="/donate">Cancel</BackLink>
-      <PageHeading>Donate {amount.toString()} SOL</PageHeading>
+      <BackLink href="/">Cancel</BackLink>
+      <PageHeading>Deposit {amount.toString()} DST</PageHeading>
       <Card>
         <Tabs.Group style="underline" className="w-96" id="checkout-tab">
           <Tabs.Item title="Scan">
@@ -150,22 +150,16 @@ export default function Checkout() {
               Checkout payment manually
             </p>
             <div className="flex flex-col gap-4">
-              <div>
-                <p className="mt-4 mb-2 block text-gray-700 dark:text-gray-100">
-                  Destination Address
-                </p>
-                <ClipboardCopy copyText={shopAddress.toString()} />
-              </div>
               <p className="my-2 block text-gray-700 dark:text-gray-100">
                 Amount:{" "}
-                <span className="font-semibold">{amount.toString()} SOL</span>
+                <span className="font-semibold">{amount.toString()} DST</span>
               </p>
               {wallet.connected ? (
                 <Button
-                  onClick={onDonateManually}
+                  onClick={onMintManually}
                   disabled={!wallet.publicKey || amount.toNumber() === 0}
                 >
-                  Donate
+                  Mint
                 </Button>
               ) : (
                 <Button onClick={() => setVisible(true)}>Connect</Button>

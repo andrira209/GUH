@@ -12,7 +12,9 @@ export default function Footer() {
       >
         <FaGithub size={28} />
       </Link>
-      <span className="ml-4 text-gray-500 dark:text-gray-400">© 2022 Curest0x1021, GitHub.</span>
+      <span className="ml-4 text-gray-500 dark:text-gray-400">
+        © 2022 Curest0x1021, GitHub.
+      </span>
     </footer>
   );
 }

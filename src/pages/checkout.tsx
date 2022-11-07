@@ -128,11 +128,7 @@ export default function Checkout() {
       amount,
       reference
     );
-    notifyUpdate(
-      toastId,
-      result.message,
-      result.status ? "success" : "error"
-    );
+    notifyUpdate(toastId, result.message, result.status ? "success" : "error");
   };
 
   return (

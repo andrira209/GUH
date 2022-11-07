@@ -1,23 +1,34 @@
 import {
+  createTransferCheckedInstruction,
+  getAssociatedTokenAddress,
+  getMint,
+  getOrCreateAssociatedTokenAccount,
+} from "@solana/spl-token";
+import {
   Keypair,
-  LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
-  Transaction
+  Transaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
 import { NextApiRequest, NextApiResponse } from "next";
+import { tokenAddress } from "../../data/addresses";
 import {
   ErrorOutput,
   MakeTransactionGetResponse,
   MakeTransactionInputData,
-  MakeTransactionOutputData
+  MakeTransactionOutputData,
 } from "../../types";
-import { calculateSolPrice, getConnection } from "../../utils";
+import {
+  calculatePrice,
+  createMetaplexMintInstruction,
+  createSetupInstructions,
+  getConnection,
+} from "../../utils";
 
 function get(res: NextApiResponse<MakeTransactionGetResponse>) {
   res.status(200).json({
-    label: "Donating SOL",
+    label: "Buy NFT",
     icon: "https://i.postimg.cc/MZhCwyjk/logo.png",
   });
 }
@@ -27,7 +38,7 @@ async function post(
   res: NextApiResponse<MakeTransactionOutputData | ErrorOutput>
 ) {
   try {
-    const amount = calculateSolPrice(req.query);
+    const amount = calculatePrice(req.query);
     if (amount.toNumber() === 0) {
       res.status(400).json({ error: "Can't checkout with charge of 0" });
       return;
@@ -57,30 +68,80 @@ async function post(
 
     const connection = getConnection();
 
+    const tokenMint = await getMint(connection, tokenAddress);
+    const buyerTokenAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      shopKeypair,
+      tokenAddress,
+      buyerPublicKey
+    );
+    const shopTokenAddress = await getAssociatedTokenAddress(
+      tokenAddress,
+      shopPublicKey
+    );
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash("finalized");
     const transaction = new Transaction({
       blockhash,
       lastValidBlockHeight,
-      feePayer: buyerPublicKey,
+      feePayer: shopPublicKey,
     });
 
-    // Instraction to send SOL from the buyer to the shop
-    const transferSolInstruction = SystemProgram.transfer({
-      fromPubkey: buyerPublicKey,
-      toPubkey: shopPublicKey,
-      lamports: amount.multipliedBy(LAMPORTS_PER_SOL).toNumber(),
-    });
+    // Instruction to send the token from the buyer to the shop
+    const transferInstruction = createTransferCheckedInstruction(
+      buyerTokenAccount.address,
+      tokenAddress,
+      shopTokenAddress,
+      buyerPublicKey,
+      amount.multipliedBy(10 ** tokenMint.decimals).toNumber(),
+      tokenMint.decimals
+    );
 
-    transferSolInstruction.keys.push({
+    transferInstruction.keys.push({
       pubkey: new PublicKey(reference),
       isSigner: false,
       isWritable: false,
     });
 
-    // Add all instructions to the transaction
-    transaction.add(transferSolInstruction);
+    // Instruction to send SOL from the buyer to the shop
+    const transferSolInstruction = SystemProgram.transfer({
+      fromPubkey: buyerPublicKey,
+      lamports: 1000000,
+      toPubkey: shopPublicKey,
+    });
 
+    transferSolInstruction.keys.push({
+      pubkey: buyerPublicKey,
+      isSigner: true,
+      isWritable: false,
+    });
+
+    const mint = Keypair.generate();
+
+    // Create the mint setup instrauction
+    const mintSetupInstructions = await createSetupInstructions(
+      connection,
+      shopPublicKey,
+      buyerPublicKey,
+      mint.publicKey
+    );
+
+    // Create the mint NFT instruction
+    const mintNFTInstruction = await createMetaplexMintInstruction(
+      shopPublicKey,
+      buyerPublicKey,
+      mint.publicKey
+    );
+
+    // Add all instructions to the transaction
+    transaction.add(
+      transferSolInstruction,
+      ...mintSetupInstructions,
+      mintNFTInstruction,
+      transferInstruction
+    );
+
+    transaction.partialSign(mint, shopKeypair);
     const serializedTransaction = transaction
       .serialize({ requireAllSignatures: false })
       .toString("base64");
@@ -88,7 +149,7 @@ async function post(
     // Return the serialized transaction
     res.status(200).json({
       transaction: serializedTransaction,
-      message: "Thanks for your donation! 🥰",
+      message: "Thanks for your mint! 🥰",
     });
   } catch (err) {
     console.error(err);
