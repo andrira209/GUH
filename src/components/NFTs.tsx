@@ -19,9 +19,9 @@ export default function NFTs() {
                 <button
                   type="button"
                   className="ml-auto px-4 py-1 rounded-md border border-gray-400 dark:border-gray-500 dark:text-white hover:text-green-500 dark:hover:text-green-500"
-                  onClick={() => router.push(`/shop/checkout?DST=${nft.price}`)}
+                  onClick={() => router.push(`/mint/checkout?DST=${nft.price}`)}
                 >
-                  Buy
+                  Mint
                 </button>
               </div>
             </div>

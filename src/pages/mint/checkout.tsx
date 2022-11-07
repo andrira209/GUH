@@ -14,14 +14,13 @@ import { Button, Card, Tabs, useTheme } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef } from "react";
 import BackLink from "../../components/BackLink";
-import ClipboardCopy from "../../components/ClipboardCopy";
 import PageHeading from "../../components/PageHeading";
 import { couponAddress, shopAddress } from "../../data/addresses";
 import {
   calculatePrice,
   notifyLoading,
   notifyUpdate,
-  runDepositTransaction,
+  runMintTransaction,
 } from "../../utils";
 
 export default function Checkout() {
@@ -62,11 +61,11 @@ export default function Checkout() {
     const { location } = window;
     const apiUrl = `${location.protocol}//${
       location.host
-    }/api/makeNFTTransaction?${searchParams.toString()}`;
+    }/api/makeMintTransaction?${searchParams.toString()}`;
     const urlParams: TransactionRequestURLFields = {
       link: new URL(apiUrl),
-      label: "Depositing DST",
-      message: "Thanks for your purchase!",
+      label: "Mint NFT",
+      message: "Thanks for your mint!",
     };
 
     const solanaUrl = encodeURL(urlParams);
@@ -117,12 +116,12 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onDepositManually = async () => {
+  const onMintManually = async () => {
     const toastId = notifyLoading(
       "Transaction in progress. Please wait...",
       mode
     );
-    const result = await runDepositTransaction(
+    const result = await runMintTransaction(
       connection,
       wallet,
       amount,
@@ -151,22 +150,16 @@ export default function Checkout() {
               Checkout payment manually
             </p>
             <div className="flex flex-col gap-4">
-              <div>
-                <p className="mt-4 mb-2 block text-gray-700 dark:text-gray-100">
-                  Shop Address
-                </p>
-                <ClipboardCopy copyText={shopAddress.toString()} />
-              </div>
               <p className="my-2 block text-gray-700 dark:text-gray-100">
                 Amount:{" "}
                 <span className="font-semibold">{amount.toString()} DST</span>
               </p>
               {wallet.connected ? (
                 <Button
-                  onClick={onDepositManually}
+                  onClick={onMintManually}
                   disabled={!wallet.publicKey || amount.toNumber() === 0}
                 >
-                  Deposit
+                  Mint
                 </Button>
               ) : (
                 <Button onClick={() => setVisible(true)}>Connect</Button>

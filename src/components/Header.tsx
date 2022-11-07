@@ -44,8 +44,8 @@ export default function Header() {
         >
           Faucet
         </Navbar.Link>
-        <Navbar.Link href="/shop" active={router.pathname.startsWith("/shop")}>
-          Shop
+        <Navbar.Link href="/mint" active={router.pathname.startsWith("/mint")}>
+          Mint
         </Navbar.Link>
         <Navbar.Link
           href="/donate"
