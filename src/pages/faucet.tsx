@@ -7,6 +7,7 @@ import {
   notifyLoading,
   notifyUpdate,
   runFaucetTransaction,
+  throwConfetti,
   validSolanaAddress,
 } from "../utils";
 
@@ -37,6 +38,9 @@ export default function FaucetPage() {
         result.message,
         result.status ? "success" : "error"
       );
+      if (result.status) {
+        throwConfetti();
+      }
     } else {
       setIsValid(false);
     }
@@ -44,10 +48,10 @@ export default function FaucetPage() {
 
   return (
     <div className="relative flex flex-col items-stretch max-w-5xl gap-8 pt-24 m-auto">
-      <SiteHeading>DWLT Faucet</SiteHeading>
+      <SiteHeading>DST Faucet</SiteHeading>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <p className="my-2 text-xl dark:text-white">
-          Airdrop 2 WL token(DWLT) to Solana Devnet
+          Airdrop 2 store token(DST) to Solana Devnet
         </p>
         <TextInput
           {...register("account", {
