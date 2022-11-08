@@ -6,6 +6,7 @@ export default function NFTs() {
   const router = useRouter();
   return (
     <div className="flex flex-wrap gap-8">
+      {/* TODO: Mint UI */}
       {nfts.map((nft) => (
         <div key={nft.mint}>
           <div className="rounded-xl overflow-hidden border border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">

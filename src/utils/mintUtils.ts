@@ -1,3 +1,4 @@
+import * as anchor from "@project-serum/anchor";
 import {
   createMintNftInstruction,
   MintNftInstructionAccounts,
@@ -26,6 +27,47 @@ import {
   SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
   TOKEN_METADATA_PROGRAM_ID,
 } from "../data/addresses";
+
+interface CandyMachineState {
+  authority: PublicKey;
+  itemsAvailable: number;
+  itemsRedeemed: number;
+  itemsRemaining: number;
+  treasury: PublicKey;
+  tokenMint: null | PublicKey;
+  isSoldOut: boolean;
+  isActive: boolean;
+  isPresale: boolean;
+  isWhitelistOnly: boolean;
+  goLiveDate: null | anchor.BN;
+  price: anchor.BN;
+  gatekeeper: null | {
+    expireOnUse: boolean;
+    gatekeeperNetwork: PublicKey;
+  };
+  endSettings: null | {
+    number: anchor.BN;
+    endSettingType: any;
+  };
+  whitelistMintSettings: null | {
+    mode: any;
+    mint: PublicKey;
+    presale: boolean;
+    discountPrice: null | anchor.BN;
+  };
+  hiddenSettings: null | {
+    name: string;
+    uri: string;
+    hash: Uint8Array;
+  };
+  retainAuthority: boolean;
+}
+
+export interface CandyMachineAccount {
+  id: PublicKey;
+  program: anchor.Program;
+  state: CandyMachineState;
+}
 
 const getMetadata = async (mint: PublicKey): Promise<PublicKey> => {
   return (
