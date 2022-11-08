@@ -1,145 +1,140 @@
+import * as anchor from "@project-serum/anchor";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { SystemProgram } from "@solana/web3.js";
 import {
-  createMintNftInstruction,
-  MintNftInstructionAccounts,
-  MintNftInstructionArgs,
-} from "@metaplex-foundation/mpl-candy-machine";
-import {
-  createAssociatedTokenAccountInstruction,
-  createInitializeMintInstruction,
-  createMintToInstruction,
-  MintLayout,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  SYSVAR_CLOCK_PUBKEY,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
-  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  LAMPORTS_PER_SOL,
+  SYSVAR_RENT_PUBKEY,
   TransactionInstruction,
 } from "@solana/web3.js";
-import {
-  CANDY_MACHINE_OWNER,
-  CANDY_MACHINE_PROGRAM_ID,
-  MY_CANDY_MACHINE_ID,
-  SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
-  TOKEN_METADATA_PROGRAM_ID,
-} from "../data/addresses";
 
-const getMetadata = async (mint: PublicKey): Promise<PublicKey> => {
-  return (
-    await PublicKey.findProgramAddress(
-      [
-        Buffer.from("metadata"),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-      ],
-      TOKEN_METADATA_PROGRAM_ID
-    )
-  )[0];
+export interface AlertState {
+  open: boolean;
+  message: string;
+  severity: "success" | "info" | "warning" | "error" | undefined;
+  hideDuration?: number | null;
+}
+
+export const toDate = (value?: anchor.BN) => {
+  if (!value) {
+    return;
+  }
+
+  return new Date(value.toNumber() * 1000);
 };
 
-const getMasterEdition = async (mint: PublicKey): Promise<PublicKey> => {
-  return (
-    await PublicKey.findProgramAddress(
-      [
-        Buffer.from("metadata"),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-        Buffer.from("edition"),
-      ],
-      TOKEN_METADATA_PROGRAM_ID
-    )
-  )[0];
+const numberFormater = new Intl.NumberFormat("en-US", {
+  style: "decimal",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+export const formatNumber = {
+  format: (val?: number) => {
+    if (!val) {
+      return "--";
+    }
+
+    return numberFormater.format(val);
+  },
+  asNumber: (val?: anchor.BN) => {
+    if (!val) {
+      return undefined;
+    }
+
+    return val.toNumber() / LAMPORTS_PER_SOL;
+  },
 };
 
-const getAtaForMint = async (
-  payer: PublicKey,
-  mint: PublicKey
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
-    [payer.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+export const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID =
+  new anchor.web3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
+
+export const CIVIC = new anchor.web3.PublicKey(
+  "gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs"
+);
+
+export const CIVIC_GATEKEEPER_NETWORK =
+  "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6";
+
+export const getAtaForMint = async (
+  mint: anchor.web3.PublicKey,
+  buyer: anchor.web3.PublicKey
+): Promise<[anchor.web3.PublicKey, number]> => {
+  return await anchor.web3.PublicKey.findProgramAddress(
+    [buyer.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
     SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
   );
 };
 
-const getCandyMachineCreator = async (
-  candyMachine: PublicKey
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
-    [Buffer.from("candy_machine"), candyMachine.toBuffer()],
-    CANDY_MACHINE_PROGRAM_ID
+export const getNetworkExpire = async (
+  gatekeeperNetwork: anchor.web3.PublicKey
+): Promise<[anchor.web3.PublicKey, number]> => {
+  return await anchor.web3.PublicKey.findProgramAddress(
+    [gatekeeperNetwork.toBuffer(), Buffer.from("expire")],
+    CIVIC
   );
 };
 
-export const createSetupInstructions = async (
-  connection: Connection,
-  payer: PublicKey,
-  mintFor: PublicKey,
-  mint: PublicKey
-): Promise<TransactionInstruction[]> => {
-  const minimumBalance = await connection.getMinimumBalanceForRentExemption(
-    MintLayout.span
+export const getNetworkToken = async (
+  wallet: anchor.web3.PublicKey,
+  gatekeeperNetwork: anchor.web3.PublicKey
+): Promise<[anchor.web3.PublicKey, number]> => {
+  return await anchor.web3.PublicKey.findProgramAddress(
+    [
+      wallet.toBuffer(),
+      Buffer.from("gateway"),
+      Buffer.from([0, 0, 0, 0, 0, 0, 0, 0]),
+      gatekeeperNetwork.toBuffer(),
+    ],
+    CIVIC
   );
-  const userTokenAccountAddress = (await getAtaForMint(mintFor, mint))[0];
+};
 
-  return [
-    SystemProgram.createAccount({
-      fromPubkey: payer,
-      newAccountPubkey: mint,
-      space: MintLayout.span,
-      lamports: minimumBalance,
-      programId: TOKEN_PROGRAM_ID,
-    }),
-    createInitializeMintInstruction(
-      mint,
-      0, // decimals
-      mintFor, // mint authority
-      mintFor // freeze authority
-    ),
-    createAssociatedTokenAccountInstruction(
-      payer, // payer,
-      userTokenAccountAddress, // associated token,
-      mintFor, // owner,
-      mint // mint
-    ),
-    createMintToInstruction(
-      mint, // mint,
-      userTokenAccountAddress, // destination,
-      mintFor, // authority,
-      1 // amount
-    ),
+export function createAssociatedTokenAccountInstruction(
+  associatedTokenAddress: anchor.web3.PublicKey,
+  payer: anchor.web3.PublicKey,
+  walletAddress: anchor.web3.PublicKey,
+  splTokenMintAddress: anchor.web3.PublicKey
+) {
+  const keys = [
+    {
+      pubkey: payer,
+      isSigner: true,
+      isWritable: true,
+    },
+    {
+      pubkey: associatedTokenAddress,
+      isSigner: false,
+      isWritable: true,
+    },
+    {
+      pubkey: walletAddress,
+      isSigner: false,
+      isWritable: false,
+    },
+    {
+      pubkey: splTokenMintAddress,
+      isSigner: false,
+      isWritable: false,
+    },
+    {
+      pubkey: SystemProgram.programId,
+      isSigner: false,
+      isWritable: false,
+    },
+    {
+      pubkey: TOKEN_PROGRAM_ID,
+      isSigner: false,
+      isWritable: false,
+    },
+    {
+      pubkey: SYSVAR_RENT_PUBKEY,
+      isSigner: false,
+      isWritable: false,
+    },
   ];
-};
-
-export const createMetaplexMintInstruction = async (
-  payer: PublicKey,
-  mintFor: PublicKey,
-  mint: PublicKey
-): Promise<TransactionInstruction> => {
-  const metadata = await getMetadata(mint);
-  const masterEdition = await getMasterEdition(mint);
-  const [candyMachineCreator, creatorBump] = await getCandyMachineCreator(
-    MY_CANDY_MACHINE_ID
-  );
-
-  const accounts: MintNftInstructionAccounts = {
-    candyMachine: MY_CANDY_MACHINE_ID,
-    candyMachineCreator: candyMachineCreator,
-    payer: payer,
-    wallet: CANDY_MACHINE_OWNER,
-    metadata: metadata,
-    mint: mint,
-    mintAuthority: mintFor,
-    updateAuthority: mintFor,
-    masterEdition: masterEdition,
-    tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-    clock: SYSVAR_CLOCK_PUBKEY,
-    recentBlockhashes: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-    instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,
-  };
-  const args: MintNftInstructionArgs = { creatorBump };
-
-  return createMintNftInstruction(accounts, args);
-};
+  return new TransactionInstruction({
+    keys,
+    programId: SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
+    data: Buffer.from([]),
+  });
+}

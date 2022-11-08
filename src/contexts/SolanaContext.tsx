@@ -15,7 +15,7 @@ import { PropsWithChildren, useMemo } from "react";
 
 export function SolanaProvider({ children }: PropsWithChildren<{}>) {
   const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_DEVNET_NODE || clusterApiUrl(network), [network]);
 
   // @ts-ignore
   const wallets: Adapter[] = useMemo(

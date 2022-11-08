@@ -29,3 +29,5 @@ export const MY_CANDY_MACHINE_ID = new PublicKey(
 export const CANDY_MACHINE_OWNER = new PublicKey(
   "EMvY6yGsb9s5TcBt9ppg1yJ6GJVnkTBeSv5JZDwvgptr"
 );
+export const CIVIC_GATEKEEPER_NETWORK =
+  "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6";
