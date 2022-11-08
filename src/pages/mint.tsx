@@ -3,7 +3,6 @@ import * as anchor from "@project-serum/anchor";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Commitment, LAMPORTS_PER_SOL, Transaction } from "@solana/web3.js";
-import confetti from "canvas-confetti";
 import { Button, Card, Progress, useTheme } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,6 +26,7 @@ import {
   notifyLoading,
   notifyUpdate,
   SetupState,
+  throwConfetti,
   toDate,
 } from "../utils";
 
@@ -424,14 +424,6 @@ export default function MintPage() {
     );
     setIsMinting(false);
     throwConfetti();
-  }
-
-  function throwConfetti(): void {
-    confetti({
-      particleCount: 400,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
   }
 
   return (

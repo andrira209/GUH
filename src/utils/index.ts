@@ -8,5 +8,6 @@ export * from "./notify";
 export * from "./runDepositTransaction";
 export * from "./runDonateTransaction";
 export * from "./runFaucetTransaction";
+export * from "./throwConfetti";
 export * from "./validSolanaAddress";
 export * from "./windowExist";
