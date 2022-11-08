@@ -15,138 +15,86 @@ interface Props {
   onMint: () => Promise<void>;
   candyMachine?: CandyMachineAccount;
   isMinting: boolean;
-  setIsMinting: (val: boolean) => void;
+  isEnded: boolean;
   isActive: boolean;
+  isSoldOut: boolean;
 }
 
 export default function MintButton({
   onMint,
   candyMachine,
   isMinting,
-  setIsMinting,
+  isEnded,
   isActive,
+  isSoldOut,
 }: Props) {
   const wallet = useWallet();
   const { connection } = useConnection();
-  const [verified, setVerified] = useState(false);
+
+  const [isVerifying, setIsVerifying] = useState(false);
   const { requestGatewayToken, gatewayStatus } = useGateway();
-  const [webSocketSubscriptionId, setWebSocketSubscriptionId] = useState(-1);
   const [clicked, setClicked] = useState(false);
-  const [waitForActiveToken, setWaitForActiveToken] = useState(false);
-
-  const getMintButtonContent = () => {
-    if (candyMachine?.state.isSoldOut) {
-      return "SOLD OUT";
-    } else if (isMinting) {
-      return <Spinner />;
-    } else if (
-      candyMachine?.state.isPresale ||
-      candyMachine?.state.isWhitelistOnly
-    ) {
-      return "WHITELIST MINT";
-    }
-    return "MINT";
-  };
 
   useEffect(() => {
-    const mint = async () => {
-      await removeAccountChangeListener(connection, webSocketSubscriptionId);
-      await onMint();
-
-      setClicked(false);
-      setVerified(false);
-    };
-
-    if (verified && clicked) {
-      mint();
-    }
-  }, [clicked, connection, onMint, verified, webSocketSubscriptionId]);
-
-  const previousGatewayStatus = usePrevious(gatewayStatus);
-
-  useEffect(() => {
-    const fromStatus = [
-      GatewayStatus.NOT_REQUESTED,
-      GatewayStatus.REFRESH_TOKEN_REQUIRED,
-    ];
-    const invalidToState = [...fromStatus, GatewayStatus.UNKNOWN];
+    setIsVerifying(false);
     if (
-      fromStatus.find((state) => previousGatewayStatus === state) &&
-      !invalidToState.find((state) => gatewayStatus === state)
+      gatewayStatus === GatewayStatus.COLLECTING_USER_INFORMATION &&
+      clicked
     ) {
-      setIsMinting(true);
-    }
-    console.log("change: ", GatewayStatus[gatewayStatus]);
-  }, [gatewayStatus, previousGatewayStatus, setIsMinting]);
-
-  useEffect(() => {
-    if (waitForActiveToken && gatewayStatus === GatewayStatus.ACTIVE) {
-      console.log("Minting after token active");
-      setWaitForActiveToken(false);
+      // when user approves wallet verification txn
+      setIsVerifying(true);
+    } else if (gatewayStatus === GatewayStatus.ACTIVE && clicked) {
+      console.log("Verified human, now minting...");
       onMint();
+      setClicked(false);
     }
-  }, [gatewayStatus, onMint, waitForActiveToken]);
+  }, [clicked, gatewayStatus, onMint]);
 
   return (
     <Button
-      disabled={isMinting || !isActive}
+      disabled={
+        clicked ||
+        candyMachine?.state.isSoldOut ||
+        isSoldOut ||
+        isMinting ||
+        isEnded ||
+        !isActive ||
+        isVerifying
+      }
       onClick={async () => {
-        if (candyMachine?.state.isActive && candyMachine?.state.gatekeeper) {
-          const network =
-            candyMachine.state.gatekeeper.gatekeeperNetwork.toBase58();
-          if (network === CIVIC_GATEKEEPER_NETWORK) {
-            if (gatewayStatus == GatewayStatus.ACTIVE) {
-              await onMint();
-            } else {
-              setWaitForActiveToken(true);
-              await requestGatewayToken();
-              console.log("after: ", gatewayStatus);
-            }
-          } else if (
-            network === "ttib7tuX8PTWPqFsmUFQTj78MbRhUmqxidJRDv4hRRE" ||
-            network === "tibePmPaoTgrs929rWpu755EXaxC7M3SthVCf6GzjZt"
-          ) {
-            setClicked(true);
-            const gatewayToken = await findGatewayToken(
-              connection,
-              wallet.publicKey!,
-              candyMachine.state.gatekeeper.gatekeeperNetwork
-            );
-
-            if (gatewayToken?.isValid()) {
-              await onMint();
-            } else {
-              window.open(
-                `https://verify.encore.fans/?gkNetwork=${network}`,
-                "_blank"
-              );
-
-              const gatewayTokenAddress =
-                await getGatewayTokenAddressForOwnerAndGatekeeperNetwork(
-                  wallet.publicKey!,
-                  candyMachine.state.gatekeeper.gatekeeperNetwork
-                );
-
-              setWebSocketSubscriptionId(
-                onGatewayTokenChange(
-                  connection,
-                  candyMachine.state.gatekeeper.gatekeeperNetwork,
-                  () => setVerified(true),
-                  "confirmed"
-                )
-              );
-            }
-          } else {
-            setClicked(false);
-            throw new Error(`Unknown Gatekeeper Network: ${network}`);
-          }
+        if (
+          isActive &&
+          candyMachine?.state.gatekeeper &&
+          gatewayStatus !== GatewayStatus.ACTIVE
+        ) {
+          console.log("Requesting gateway token");
+          setClicked(true);
+          await requestGatewayToken();
         } else {
+          console.log("Minting...");
           await onMint();
-          setClicked(false);
         }
       }}
     >
-      {getMintButtonContent()}
+      {!candyMachine ? (
+        "CONNECTING..."
+      ) : candyMachine?.state.isSoldOut || isSoldOut ? (
+        "SOLD OUT"
+      ) : isActive ? (
+        isVerifying ? (
+          "VERIFYING..."
+        ) : isMinting || clicked ? (
+          <Spinner />
+        ) : (
+          "MINT"
+        )
+      ) : isEnded ? (
+        "ENDED"
+      ) : candyMachine?.state.goLiveDate ? (
+        "SOON"
+      ) : (
+        "UNAVAILABLE"
+      )}
     </Button>
   );
 }

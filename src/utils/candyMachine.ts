@@ -392,11 +392,11 @@ type MintResult = {
 export const mintOneToken = async (
   candyMachine: CandyMachineAccount,
   payer: anchor.web3.PublicKey,
+  mint: anchor.web3.Keypair,
   beforeTransactions: Transaction[] = [],
   afterTransactions: Transaction[] = [],
   setupState?: SetupState
 ): Promise<MintResult | null> => {
-  const mint = setupState?.mint ?? anchor.web3.Keypair.generate();
   const userTokenAccountAddress = (
     await getAtaForMint(mint.publicKey, payer)
   )[0];
