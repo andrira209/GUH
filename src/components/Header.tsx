@@ -10,7 +10,7 @@ export default function Header() {
       fluid={true}
       className="border-b border-gray-200 dark:border-gray-800"
     >
-      <Navbar.Brand href="https://flowbite.com/">
+      <Navbar.Brand href="/">
         <Image
           src="/logo.png"
           className="mr-3"
