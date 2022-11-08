@@ -11,7 +11,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
-import { couponAddress } from "../data/addresses";
+import { tokenAddress } from "../data/addresses";
 import { MyTransactionStatus } from "../types";
 
 export async function runFaucetTransaction(
@@ -31,14 +31,14 @@ export async function runFaucetTransaction(
     const shopPublicKey = shopKeypair.publicKey;
     const buyerPublicKey = new PublicKey(account);
 
-    const buyerCouponAccount = await getOrCreateAssociatedTokenAccount(
+    const buyerTokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
       shopKeypair,
-      couponAddress,
+      tokenAddress,
       buyerPublicKey
     );
-    const shopCouponAddress = await getAssociatedTokenAddress(
-      couponAddress,
+    const shopTokenAddress = await getAssociatedTokenAddress(
+      tokenAddress,
       shopPublicKey
     );
 
@@ -51,22 +51,22 @@ export async function runFaucetTransaction(
       feePayer: shopPublicKey,
     });
 
-    const couponInstruction = createTransferCheckedInstruction(
-      shopCouponAddress,
-      couponAddress,
-      buyerCouponAccount.address,
+    const transferInstruction = createTransferCheckedInstruction(
+      shopTokenAddress,
+      tokenAddress,
+      buyerTokenAccount.address,
       shopPublicKey,
       2 * 10 ** 6,
       6
     );
 
-    couponInstruction.keys.push({
+    transferInstruction.keys.push({
       pubkey: buyerPublicKey,
       isSigner: false,
       isWritable: false,
     });
 
-    transaction.add(couponInstruction);
+    transaction.add(transferInstruction);
 
     await sendAndConfirmTransaction(connection, transaction, [shopKeypair], {
       commitment: "confirmed",
@@ -74,7 +74,7 @@ export async function runFaucetTransaction(
 
     return {
       status: true,
-      message: `Successful airdrop 2 DWLT to ${buyerPublicKey.toString()}`,
+      message: `Successful airdrop 2 DST to ${buyerPublicKey.toString()}`,
     };
   } catch (err) {
     console.error(err);
