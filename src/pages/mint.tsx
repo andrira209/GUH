@@ -1,7 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { GatewayProvider } from "@civic/solana-gateway-react";
 import * as anchor from "@project-serum/anchor";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { Commitment, LAMPORTS_PER_SOL, Transaction } from "@solana/web3.js";
+import confetti from "canvas-confetti";
+import { Button, Card, Progress, useTheme } from "flowbite-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Countdown from "react-countdown";
+import { Id } from "react-toastify";
+import MintButton from "../components/MintButton";
 import {
-  AlertState,
+  CANDY_MACHINE_PROGRAM_ID,
+  MY_CANDY_MACHINE_ID,
+} from "../data/addresses";
+import {
   awaitTransactionSignatureConfirmation,
   CandyMachineAccount,
   createAccountsForMint,
@@ -10,22 +24,11 @@ import {
   getCandyMachineState,
   getCollectionPDA,
   mintOneToken,
+  notifyLoading,
+  notifyUpdate,
   SetupState,
   toDate,
 } from "../utils";
-import {
-  useConnection,
-  useWallet,
-} from "@solana/wallet-adapter-react";
-import { Commitment, LAMPORTS_PER_SOL, Transaction } from "@solana/web3.js";
-import { CANDY_MACHINE_PROGRAM_ID, MY_CANDY_MACHINE_ID } from "../data/addresses";
-import { Button, Card, Progress } from "flowbite-react";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import confetti from "canvas-confetti";
-import Countdown from "react-countdown";
-import Link from "next/link";
-import MintButton from "../components/MintButton";
-import { GatewayProvider } from "@civic/solana-gateway-react";
 
 const decimals = 6;
 const splTokenName = "DST";
@@ -52,19 +55,17 @@ export default function MintPage() {
   const [isPresale, setIsPresale] = useState(false);
   const [isWLOnly, setIsWLOnly] = useState(false);
   const [candyMachine, setCandyMachine] = useState<CandyMachineAccount>();
-  const [alertState, setAlertState] = useState<AlertState>({
-    open: false,
-    message: "",
-    severity: undefined,
-  });
   const [needTxnSplit, setNeedTxnSplit] = useState(true);
   const [setupTxn, setSetupTxn] = useState<SetupState>();
 
+  const { mode } = useTheme();
   const { setVisible } = useWalletModal();
   const { connection } = useConnection();
   const rpcHost = connection.rpcEndpoint;
   const solFeesEstimation = 0.012; // approx of account creation fees
   const wallet = useWallet();
+
+  let toastId: Id;
 
   const anchorWallet = useMemo(() => {
     if (
@@ -221,31 +222,25 @@ export default function MintPage() {
           if (
             e.message === `Account does not exist ${candyMachineId.toBase58()}`
           ) {
-            setAlertState({
-              open: true,
-              message: `Couldn't fetch candy machine state from candy machine with address: ${candyMachineId.toBase58()}, using rpc: ${rpcHost}! You probably typed the REACT_APP_CANDY_MACHINE_ID value wrong in your .env file, or you are using the wrong RPC!`,
-              severity: "error",
-              hideDuration: null,
-            });
+            notifyUpdate(
+              toastId,
+              `Couldn't fetch candy machine state from candy machine with address: ${candyMachineId.toBase58()}, using rpc: ${rpcHost}! You probably typed the REACT_APP_CANDY_MACHINE_ID value wrong in your .env file, or you are using the wrong RPC!`,
+              "error"
+            );
           } else if (e.message.startsWith("failed to get info about account")) {
-            setAlertState({
-              open: true,
-              message: `Couldn't fetch candy machine state with rpc: ${rpcHost}! This probably means you have an issue with the REACT_APP_SOLANA_RPC_HOST value in your .env file, or you are not using a custom RPC!`,
-              severity: "error",
-              hideDuration: null,
-            });
+            notifyUpdate(
+              toastId,
+              `Couldn't fetch candy machine state with rpc: ${rpcHost}! This probably means you have an issue with the REACT_APP_SOLANA_RPC_HOST value in your .env file, or you are not using a custom RPC!`,
+              "error"
+            );
           }
         } else {
-          setAlertState({
-            open: true,
-            message: `${e}`,
-            severity: "error",
-            hideDuration: null,
-          });
+          notifyUpdate(toastId, `${e}`, "error");
         }
         console.log(e);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [anchorWallet, connection, isEnded, isPresale, rpcHost]
   );
 
@@ -253,16 +248,12 @@ export default function MintPage() {
     beforeTransactions: Transaction[] = [],
     afterTransactions: Transaction[] = []
   ) => {
+    toastId = notifyLoading("Transaction in progress. Please wait...", mode);
     try {
       if (wallet.connected && candyMachine?.program && wallet.publicKey) {
         setIsMinting(true);
         let setupMint: SetupState | undefined;
         if (needTxnSplit && setupTxn === undefined) {
-          setAlertState({
-            open: true,
-            message: "Please sign account setup transaction",
-            severity: "info",
-          });
           setupMint = await createAccountsForMint(
             candyMachine,
             wallet.publicKey
@@ -278,27 +269,11 @@ export default function MintPage() {
           }
           if (status && !status.err) {
             setSetupTxn(setupMint);
-            setAlertState({
-              open: true,
-              message:
-                "Setup transaction succeeded! Please sign minting transaction",
-              severity: "info",
-            });
           } else {
-            setAlertState({
-              open: true,
-              message: "Mint failed! Please try again!",
-              severity: "error",
-            });
+            notifyUpdate(toastId, "Mint failed! Please try again!", "error");
             setIsMinting(false);
             return;
           }
-        } else {
-          setAlertState({
-            open: true,
-            message: "Please sign minting transaction",
-            severity: "info",
-          });
         }
 
         const setupState = setupMint ?? setupTxn;
@@ -330,30 +305,20 @@ export default function MintPage() {
           console.log("Metadata status: ", !!metadataStatus);
         }
         if (status && !status.err && metadataStatus) {
-          setAlertState({
-            open: true,
-            message: "Congratulations! Mint succeeded!",
-            severity: "success",
-          });
+          notifyUpdate(toastId, "Congratulations! Mint succeeded!", "success");
 
           // update front-end amounts
           displaySuccess(mint.publicKey);
           refreshCandyMachineState("processed");
         } else if (status && !status.err) {
-          setAlertState({
-            open: true,
-            message:
-              "Mint likely failed! Anti-bot SOL 0.01 fee potentially charged! Check the explorer to confirm the mint failed and if so, make sure you are eligible to mint before trying again.",
-            severity: "error",
-            hideDuration: 8000,
-          });
+          notifyUpdate(
+            toastId,
+            "Mint likely failed! Anti-bot SOL 0.01 fee potentially charged! Check the explorer to confirm the mint failed and if so, make sure you are eligible to mint before trying again.",
+            "error"
+          );
           refreshCandyMachineState();
         } else {
-          setAlertState({
-            open: true,
-            message: "Mint failed! Please try again!",
-            severity: "error",
-          });
+          notifyUpdate(toastId, "Mint failed! Please try again!", "error");
           refreshCandyMachineState();
         }
       }
@@ -378,11 +343,7 @@ export default function MintPage() {
         }
       }
 
-      setAlertState({
-        open: true,
-        message,
-        severity: "error",
-      });
+      notifyUpdate(toastId, message, "error");
       // updates the candy machine state to reflect the latest
       // information on chain
       refreshCandyMachineState();
@@ -474,16 +435,24 @@ export default function MintPage() {
   }
 
   return (
-    <div className="relative flex flex-col items-center gap-8">
+    <div className="relative flex flex-col items-center gap-8 mt-12 dark:text-white">
       <Card>
-        <h2>Funny Eye</h2>
-        <Card imgSrc="/nft.gif" imgAlt="NFT To Mint" className="absolute">
-          <p>
+        <p className="text-2xl font-bold text-center">Funny Eye</p>
+        <div className="flex gap-4">
+          <span>Mint Price:</span>
+          <span className="text-md font-semibold">
             {isActive && whitelistEnabled && whitelistTokenBalance > 0
               ? whitelistPrice + " " + priceLabel
               : price + " " + priceLabel}
-          </p>
-        </Card>
+          </span>
+        </div>
+        <Image
+          src="/nft.gif"
+          alt="NFT To Mint"
+          width={400}
+          height={400}
+          className="rounded-lg border border-gray-200 shadow-md dark:border-gray-700"
+        />
         {wallet &&
           isActive &&
           whitelistEnabled &&
@@ -510,9 +479,9 @@ export default function MintPage() {
           />
         )}
         {wallet && isActive && (
-          <h3>
+          <p className="text-sm dark:text-white text-center">
             TOTAL MINTED : {itemsRedeemed} / {itemsAvailable}
-          </h3>
+          </p>
         )}
         {wallet && isActive && (
           <Progress
@@ -520,7 +489,7 @@ export default function MintPage() {
             progress={100 - (itemsRemaining * 100) / itemsAvailable}
           />
         )}
-        <div>
+        <div className="flex flex-col justify-center">
           {!isActive &&
           !isEnded &&
           candyMachine?.state.goLiveDate &&
@@ -533,7 +502,7 @@ export default function MintPage() {
               }}
               renderer={renderGoLiveDateCounter}
             />
-          ) : !wallet ? (
+          ) : !wallet.connected ? (
             <Button onClick={() => setVisible(true)}>Connect Wallet</Button>
           ) : !isWLOnly || whitelistTokenBalance > 0 ? (
             candyMachine?.state.gatekeeper &&
@@ -541,8 +510,7 @@ export default function MintPage() {
             wallet.signTransaction ? (
               <GatewayProvider
                 wallet={{
-                  publicKey:
-                    wallet.publicKey || CANDY_MACHINE_PROGRAM_ID,
+                  publicKey: wallet.publicKey || CANDY_MACHINE_PROGRAM_ID,
                   //@ts-ignore
                   signTransaction: wallet.signTransaction,
                 }}
@@ -577,7 +545,12 @@ export default function MintPage() {
           )}
         </div>
         {wallet && isActive && solanaExplorerLink && (
-          <Link href={solanaExplorerLink} target="_blank" rel="noreferer">
+          <Link
+            href={solanaExplorerLink}
+            target="_blank"
+            rel="noreferer"
+            className="text-green-500 text-center hover:underline"
+          >
             View on Solscan
           </Link>
         )}
@@ -585,22 +558,3 @@ export default function MintPage() {
     </div>
   );
 }
-
-const getCountdownDate = (
-  candyMachine: CandyMachineAccount
-): Date | undefined => {
-  if (
-    candyMachine.state.isActive &&
-    candyMachine.state.endSettings?.endSettingType.date
-  ) {
-    return toDate(candyMachine.state.endSettings.number);
-  }
-
-  return toDate(
-    candyMachine.state.goLiveDate
-      ? candyMachine.state.goLiveDate
-      : candyMachine.state.isPresale
-      ? new anchor.BN(new Date().getTime() / 1000)
-      : undefined
-  );
-};
