@@ -3,7 +3,7 @@ import { FaGithub } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="flex w-full justify-center border-t border-gray-200 dark:border-gray-800 py-4 mt-auto">
+    <footer className="flex w-full justify-center border-t border-gray-200 dark:border-gray-800 py-4 mt-auto z-10">
       <Link
         href="https://github.com/curest0x1021/SolanaPay.git"
         target="_blank"
