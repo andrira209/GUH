@@ -22,38 +22,43 @@ export default function Header() {
           Solana Pay Demo
         </span>
       </Navbar.Brand>
-      <div className="flex md:order-2 gap-4">
-        <DarkThemeToggle />
-        <WalletMultiButton className="my-button" />
-        <Navbar.Toggle />
+      <Navbar.Toggle />
+      <div className="flex items-center gap-8">
+        <Navbar.Collapse>
+          <Navbar.Link
+            href="/"
+            active={
+              router.pathname === "/" ||
+              router.pathname === "/checkout" ||
+              router.pathname === "/confirmed"
+            }
+          >
+            Home
+          </Navbar.Link>
+          <Navbar.Link
+            href="/faucet"
+            active={router.pathname.startsWith("/faucet")}
+          >
+            Faucet
+          </Navbar.Link>
+          <Navbar.Link
+            href="/mint"
+            active={router.pathname.startsWith("/mint")}
+          >
+            Mint
+          </Navbar.Link>
+          <Navbar.Link
+            href="/donate"
+            active={router.pathname.startsWith("/donate")}
+          >
+            Donate
+          </Navbar.Link>
+        </Navbar.Collapse>
+        <div className="flex items-center ml-4 pl-4 gap-4 border-l-2 border-gray-100 dark:border-gray-700">
+          <DarkThemeToggle />
+          <WalletMultiButton className="my-button" />
+        </div>
       </div>
-      <Navbar.Collapse>
-        <Navbar.Link
-          href="/"
-          active={
-            router.pathname === "/" ||
-            router.pathname === "/checkout" ||
-            router.pathname === "/confirmed"
-          }
-        >
-          Home
-        </Navbar.Link>
-        <Navbar.Link
-          href="/faucet"
-          active={router.pathname.startsWith("/faucet")}
-        >
-          Faucet
-        </Navbar.Link>
-        <Navbar.Link href="/mint" active={router.pathname.startsWith("/mint")}>
-          Mint
-        </Navbar.Link>
-        <Navbar.Link
-          href="/donate"
-          active={router.pathname.startsWith("/donate")}
-        >
-          Donate
-        </Navbar.Link>
-      </Navbar.Collapse>
     </Navbar>
   );
 }
