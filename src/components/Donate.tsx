@@ -1,4 +1,4 @@
-import { Button, useTheme } from "flowbite-react";
+import { Button, Card, useTheme } from "flowbite-react";
 import Image from "next/image";
 import { useRef } from "react";
 import NumberInput from "./NumberInput";
@@ -15,15 +15,13 @@ export default function Donate({ submitTarget, enabled }: Props) {
   return (
     <form method="get" action={submitTarget} ref={formRef}>
       <div className="flex flex-col gap-8">
-        <div className="grid grid-cols-0 justify-items-center gap-8">
-          <div className="w-80 rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left p-8">
-            <h3>Donate SOL</h3>
-            <p>Welcome to donate in Solana Pay</p>
-            <div className="mt-4">
-              <NumberInput name="SOL" formRef={formRef} />
-            </div>
+        <Card className="w-80 rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left">
+          <p className="text-xl font-bold">Donate SOL</p>
+          <p>Welcome to donate in Solana Pay</p>
+          <div className="mt-4">
+            <NumberInput name="SOL" formRef={formRef} />
           </div>
-        </div>
+        </Card>
         <Button
           type="submit"
           disabled={!enabled}

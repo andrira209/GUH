@@ -1,4 +1,4 @@
-import { Button, useTheme } from "flowbite-react";
+import { Button, Card, useTheme } from "flowbite-react";
 import Image from "next/image";
 import { useRef } from "react";
 import { products } from "../data/products";
@@ -18,13 +18,13 @@ export default function Products({ submitTarget, enabled }: Props) {
       <div className="flex flex-col gap-8">
         <div className="grid grid-cols-0 justify-items-center gap-8">
           {products.map((product) => (
-            <div
+            <Card
               key={product.id}
-              className="w-80 rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left p-8"
+              className="w-80 rounded-xl bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 text-left"
             >
-              <h3>{product.name}</h3>
+              <p className="text-xl font-bold">{product.name}</p>
               <p>{product.description}</p>
-              <p className="my-4">
+              <p>
                 <span className="text-xl font-bold">${product.priceUSD}</span>
                 {product.unitName && (
                   <span className="text-sm"> /{product.unitName}</span>
@@ -33,7 +33,7 @@ export default function Products({ submitTarget, enabled }: Props) {
               <div className="mt-4">
                 <NumberInput name={product.id} formRef={formRef} />
               </div>
-            </div>
+            </Card>
           ))}
         </div>
         <Button
