@@ -444,6 +444,7 @@ export default function MintPage() {
           width={400}
           height={400}
           className="rounded-lg border border-gray-200 shadow-md dark:border-gray-700"
+          unoptimized={true}
         />
         {wallet &&
           isActive &&
