@@ -16,7 +16,7 @@ import { useEffect, useMemo, useRef } from "react";
 import BackLink from "../components/BackLink";
 import ClipboardCopy from "../components/ClipboardCopy";
 import PageHeading from "../components/PageHeading";
-import { couponAddress, shopAddress } from "../data/addresses";
+import { tokenAddress, shopAddress } from "../data/addresses";
 import {
   calculatePrice,
   notifyLoading,
@@ -65,7 +65,7 @@ export default function Checkout() {
     }/api/makeTransaction?${searchParams.toString()}`;
     const urlParams: TransactionRequestURLFields = {
       link: new URL(apiUrl),
-      label: "Depositing DST",
+      label: "Depositing WL Token(DWLT)",
       message: "Thanks for your purchase!",
     };
 
@@ -92,7 +92,7 @@ export default function Checkout() {
           {
             recipient: shopAddress,
             amount: amount,
-            splToken: couponAddress,
+            splToken: tokenAddress,
             reference,
           },
           { commitment: "confirmed" }
@@ -134,7 +134,7 @@ export default function Checkout() {
   return (
     <div className="relative flex flex-col items-center gap-8">
       <BackLink href="/">Cancel</BackLink>
-      <PageHeading>Deposit {amount.toString()} DST</PageHeading>
+      <PageHeading>Deposit {amount.toString()} DWLT</PageHeading>
       <Card>
         <Tabs.Group style="underline" className="w-96" id="checkout-tab">
           <Tabs.Item title="Scan">
@@ -159,7 +159,7 @@ export default function Checkout() {
               </div>
               <p className="my-2 block text-gray-700 dark:text-gray-100">
                 Amount:{" "}
-                <span className="font-semibold">{amount.toString()} DST</span>
+                <span className="font-semibold">{amount.toString()} DWLT</span>
               </p>
               {wallet.connected ? (
                 <Button

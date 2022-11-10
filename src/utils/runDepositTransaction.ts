@@ -87,32 +87,32 @@ export async function runDepositTransaction(
     });
 
     // Create the instruction to send WL token (DWLT) from the buyer to the shop
-    const couponInstruction = createTransferCheckedInstruction(
-      buyerCouponAddress,
-      couponAddress,
-      shopCouponAddress,
-      buyerPublicKey,
-      amount.multipliedBy(10 ** couponMint.decimals).toNumber(),
-      couponMint.decimals
-    );
-
-    couponInstruction.keys.push({
-      pubkey: reference,
-      isSigner: false,
-      isWritable: false,
-    });
-
-    // Create the instruction to send token (DST) from the shop to the buyer
     const tokenInstruction = createTransferCheckedInstruction(
-      shopTokenAddress,
-      tokenAddress,
       buyerTokenAccount.address,
-      shopPublicKey,
+      tokenAddress,
+      shopTokenAddress,
+      buyerPublicKey,
       amount.multipliedBy(10 ** tokenMint.decimals).toNumber(),
       tokenMint.decimals
     );
 
     tokenInstruction.keys.push({
+      pubkey: reference,
+      isSigner: false,
+      isWritable: false,
+    });
+
+    // Create the instruction to send store token (DST) from the shop to the buyer
+    const couponInstruction = createTransferCheckedInstruction(
+      shopCouponAddress,
+      couponAddress,
+      buyerCouponAddress,
+      shopPublicKey,
+      amount.multipliedBy(10 ** couponMint.decimals).toNumber(),
+      couponMint.decimals
+    );
+
+    couponInstruction.keys.push({
       pubkey: shopPublicKey,
       isSigner: true,
       isWritable: false,
@@ -133,9 +133,9 @@ export async function runDepositTransaction(
 
     // Add all instructions to the transaction
     transaction.add(
-      tokenInstruction,
+      couponInstruction,
       transferSolInstruction,
-      couponInstruction
+      tokenInstruction
     );
 
     transaction.partialSign(shopKeypair);

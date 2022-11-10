@@ -45,7 +45,7 @@ export default function MintPage() {
   const [isSoldOut, setIsSoldOut] = useState(false);
   const [payWithSplToken, setPayWithSplToken] = useState(false);
   const [price, setPrice] = useState(0);
-  const [priceLabel, setPriceLabel] = useState<string>("SOL");
+  const [priceLabel, setPriceLabel] = useState<string>("");
   const [whitelistPrice, setWhitelistPrice] = useState(0);
   const [whitelistEnabled, setWhitelistEnabled] = useState(false);
   const [isBurnToken, setIsBurnToken] = useState(false);
