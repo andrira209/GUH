@@ -9,9 +9,13 @@ import {
 } from "@solana/spl-token";
 import {
   SystemProgram,
-  Transaction,
   SYSVAR_SLOT_HASHES_PUBKEY,
+  Transaction,
 } from "@solana/web3.js";
+import {
+  CANDY_MACHINE_PROGRAM_ID,
+  TOKEN_METADATA_PROGRAM_ID,
+} from "../data/addresses";
 import { sendTransactions, SequenceType } from "./connectionUtils";
 
 import {
@@ -21,14 +25,6 @@ import {
   getNetworkToken,
   SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
 } from "./mintUtils";
-
-export const CANDY_MACHINE_PROGRAM = new anchor.web3.PublicKey(
-  "cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"
-);
-
-const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-);
 
 interface CandyMachineState {
   authority: anchor.web3.PublicKey;
@@ -179,8 +175,15 @@ export const getCandyMachineState = async (
   });
 
   const getProgramState = async (): Promise<[anchor.Program, any]> => {
-    const idl = await anchor.Program.fetchIdl(CANDY_MACHINE_PROGRAM, provider);
-    const program = new anchor.Program(idl!, CANDY_MACHINE_PROGRAM, provider);
+    const idl = await anchor.Program.fetchIdl(
+      CANDY_MACHINE_PROGRAM_ID,
+      provider
+    );
+    const program = new anchor.Program(
+      idl!,
+      CANDY_MACHINE_PROGRAM_ID,
+      provider
+    );
     const state: any = await program.account.candyMachine.fetch(candyMachineId);
     return [program, state];
   };
@@ -199,7 +202,9 @@ export const getCandyMachineState = async (
   const itemsRemaining = itemsAvailable - itemsRedeemed;
   const timeDiff = new Date().getTime() / 1000 - currentBlockTime;
   const goLiveDate =
-    state.data.goLiveDate !== null ? state.data.goLiveDate + timeDiff : null;
+    state.data.goLiveDate !== null
+      ? (state.data.goLiveDate as anchor.BN).add(new anchor.BN(timeDiff))
+      : null;
 
   return {
     id: candyMachineId,
@@ -214,7 +219,7 @@ export const getCandyMachineState = async (
       isActive: false,
       isPresale: false,
       isWhitelistOnly: false,
-      goLiveDate: state.data.goLiveDate,
+      goLiveDate: goLiveDate,
       treasury: state.wallet,
       tokenMint: state.tokenMint,
       gatekeeper: state.data.gatekeeper,
@@ -275,7 +280,7 @@ export const getCandyMachineCreator = async (
 ): Promise<[anchor.web3.PublicKey, number]> => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from("candy_machine"), candyMachine.toBuffer()],
-    CANDY_MACHINE_PROGRAM
+    CANDY_MACHINE_PROGRAM_ID
   );
 };
 
@@ -284,7 +289,7 @@ export const getFreezePda = async (
 ): Promise<[anchor.web3.PublicKey, number]> => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from("freeze"), candyMachine.toBuffer()],
-    CANDY_MACHINE_PROGRAM
+    CANDY_MACHINE_PROGRAM_ID
   );
 };
 
@@ -293,7 +298,7 @@ export const getCollectionPDA = async (
 ): Promise<[anchor.web3.PublicKey, number]> => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from("collection"), candyMachineAddress.toBuffer()],
-    CANDY_MACHINE_PROGRAM
+    CANDY_MACHINE_PROGRAM_ID
   );
 };
 
