@@ -31,7 +31,7 @@ import {
 } from "../utils";
 
 const decimals = 6;
-const splTokenName = "DWLT";
+const splTokenName = "DST";
 const candyMachineId = MY_CANDY_MACHINE_ID;
 
 export default function MintPage() {
