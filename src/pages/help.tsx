@@ -142,6 +142,16 @@ export default function HelpPage() {
                 </Link>{" "}
                 page, users can mint NFT using Store token(DST).
               </p>
+              <p className="text-gray-500 dark:text-gray-400">
+                To get Store token(DST), go to the{" "}
+                <Link
+                  href="/"
+                  className="text-blue-600 hover:underline dark:text-blue-500"
+                >
+                  Home
+                </Link>{" "}
+                page and send WL tokens as you need the amount of Store tokens.
+              </p>
             </Accordion.Content>
           </Accordion.Panel>
         </Accordion>
