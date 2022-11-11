@@ -1,10 +1,39 @@
-# SolanaPay
+# Funny Solana Pay
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Funny Solana Pay is the test project for using Solana Pay easily on Solana devnet.
+[Funny Solana Pay](https://funny-solana-pay.netlify.app)
 
 ## Getting Started
 
-First, run the development server:
+**Mint Spl-token:**
+
+Please use [ming-fungible-spl-token](https://github.com/curest0x1021/mint-fungible-spl-token) to mint spl-token easily.
+
+**Setup environment file:**
+
+Create `.env` file from `.env.example`.
+```bash
+cp .env.example .env
+```
+
+Set your environment values in `.env` file
+```
+NEXT_PUBLIC_SHOP_PRIVATE_KEY=
+NEXT_PUBLIC_DEVNET_NODE=
+```
+
+You can use Solana public rpc node such as `https://api.devnet.solana.com` or use your private rpc node.
+Check out [RPC provides](https://docs.metaplex.com/resources/rpc-providers) for more details.
+
+**Install dependencies:**
+
+```bash
+npm install
+# or
+yarn install
+```
+
+**Run the development server:**
 
 ```bash
 npm run dev
@@ -14,11 +43,6 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
 ## Learn More
 
@@ -34,3 +58,8 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Deploy on Netlify
+The another way to deploy your Next.js app is to use the [Netlify Platform](https://www.netlify.com/with/nextjs/).
+
+Check out [Next.js on Netlify](https://docs.netlify.com/integrations/frameworks/next-js/overview/) for more details.
