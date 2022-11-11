@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="flex w-full justify-center border-t border-gray-200 dark:border-gray-800 py-4 z-10">
       <Link
-        href="https://github.com/curest0x1021/SolanaPay.git"
+        href="https://github.com/curest0x1021/FunnySolanaPay.git"
         target="_blank"
         rel="noopener noreferrer"
         className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
