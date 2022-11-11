@@ -2,8 +2,8 @@ import { PropsWithChildren } from "react";
 
 export default function SiteHeading({ children }: PropsWithChildren<{}>) {
   return (
-    <h1 className="text-5xl my-4 font-bold self-center dark:text-white">
+    <p className="text-4xl mb-8 font-bold text-center text-gray-900 dark:text-gray-100">
       {children}
-    </h1>
+    </p>
   );
 }
