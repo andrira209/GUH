@@ -427,7 +427,7 @@ export default function MintPage() {
   }
 
   return (
-    <div className="relative flex flex-col items-center gap-8 mt-12 dark:text-white">
+    <div className="relative flex flex-col items-center mt-16 dark:text-white">
       <Card>
         <p className="text-2xl font-bold text-center">Funny Eye</p>
         <div className="flex gap-4">

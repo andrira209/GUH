@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --scrollbar-background: 229 231 235;
+    --scrollbar-thumb: 156 163 175;
+    --scrollbar-thumb-hover: 107 114 128;
+  }
+}
+
 /* Hide input number spinners */
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
@@ -20,4 +28,28 @@ input[type='number']::-webkit-outer-spin-button {
 
 .wallet-adapter-button.my-button:hover {
   @apply bg-slate-900 !important;
+}
+
+::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+  background: rgb(var(--scrollbar-background) / 0.3);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--scrollbar-thumb));
+  border-radius: 1ex;
+  -webkit-border-radius: 1ex;
+  box-shadow: 0 1px 2px rgb(var(--scrollbar-background));
+  -webkit-box-shadow: 0 1px 2px rgb(var(--scrollbar-background));
+}
+
+::-webkit-scrollbar-corner {
+  background: rgb(var(--scrollbar-background));
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--scrollbar-thumb-hover));
 }

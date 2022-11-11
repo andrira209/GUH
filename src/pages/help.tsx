@@ -9,7 +9,53 @@ export default function HelpPage() {
       <Card>
         <Accordion flush={true}>
           <Accordion.Panel>
-            <Accordion.Title>How to airdrop WL token(DWLT)?</Accordion.Title>
+            <Accordion.Title>
+              <p className="font-middle text-xl">What is Funny Solana Pay?</p>
+            </Accordion.Title>
+            <Accordion.Content>
+              <p className="mb-2 text-gray-500 dark:text-gray-400">
+                Funny Solana Pay is the test project for using Solana Pay
+                easily.
+              </p>
+              <p className="mb-2 font-semibold text-gray-500 dark:text-gray-400">
+                CryoptoCurrency Problem
+              </p>
+              <p className="mb-2 text-gray-500 dark:text-gray-400">
+                Onboarding onto Web 3.0 remains complex, multi-step.
+              </p>
+              <p className="text-gray-500 dark:text-gray-400">
+                Why do we need to address this issue?
+              </p>
+              <ul className="list-disc pl-5 text-gray-500 dark:text-gray-400">
+                <li>
+                  Merchants accepting Solana Pay is growing, but the users are
+                  not.
+                </li>
+                <li>
+                  No easy way for merchants to issue custom SPL-tokens to
+                  customers
+                </li>
+                <li>Underbanked populations have no easy access.</li>
+              </ul>
+            </Accordion.Content>
+          </Accordion.Panel>
+          <Accordion.Panel>
+            <Accordion.Title>
+              <p className="font-middle text-xl">Solana Network</p>
+            </Accordion.Title>
+            <Accordion.Content>
+              <p className="text-gray-500 dark:text-gray-400">
+                Funny Solana Pay works on{" "}
+                <span className="font-semibold">Solana devnet</span>.
+              </p>
+            </Accordion.Content>
+          </Accordion.Panel>
+          <Accordion.Panel>
+            <Accordion.Title>
+              <p className="font-middle text-xl">
+                How to airdrop WL token(DWLT)?
+              </p>
+            </Accordion.Title>
             <Accordion.Content>
               <p className="text-gray-500 dark:text-gray-400">
                 In{" "}
@@ -24,7 +70,9 @@ export default function HelpPage() {
             </Accordion.Content>
           </Accordion.Panel>
           <Accordion.Panel>
-            <Accordion.Title>Our Crypto Cash Point</Accordion.Title>
+            <Accordion.Title>
+              <p className="font-middle text-xl">Our Crypto Cash Point</p>
+            </Accordion.Title>
             <Accordion.Content>
               <p className="text-gray-500 dark:text-gray-400">
                 In{" "}
@@ -62,7 +110,9 @@ export default function HelpPage() {
           </Accordion.Panel>
           <Accordion.Panel>
             <Accordion.Title>
-              How to donate into Funny Solana Pay?
+              <p className="font-middle text-xl">
+                How to donate into Funny Solana Pay?
+              </p>
             </Accordion.Title>
             <Accordion.Content>
               <p className="text-gray-500 dark:text-gray-400">
@@ -78,7 +128,9 @@ export default function HelpPage() {
             </Accordion.Content>
           </Accordion.Panel>
           <Accordion.Panel>
-            <Accordion.Title>How to mint NFT?</Accordion.Title>
+            <Accordion.Title>
+              <p className="font-middle text-xl">How to mint NFT?</p>
+            </Accordion.Title>
             <Accordion.Content>
               <p className="text-gray-500 dark:text-gray-400">
                 In{" "}
@@ -88,7 +140,7 @@ export default function HelpPage() {
                 >
                   Mint
                 </Link>{" "}
-                page, user can mint NFT using Store token(DST).
+                page, users can mint NFT using Store token(DST).
               </p>
             </Accordion.Content>
           </Accordion.Panel>
