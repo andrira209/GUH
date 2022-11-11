@@ -19,7 +19,7 @@ export default function Header() {
           alt="App Logo"
         />
         <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-          Solana Pay Demo
+          Funny Solana Pay
         </span>
       </Navbar.Brand>
       <Navbar.Toggle />

@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <AppContext>
       <Layout>
         <Head>
-          <title>Solana Pay Demo</title>
+          <title>Funny Solana Pay</title>
           <meta
             name="viewport"
             content="initial-scale=1.0, width=device-width"
