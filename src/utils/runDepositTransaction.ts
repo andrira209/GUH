@@ -118,15 +118,15 @@ export async function runDepositTransaction(
       isWritable: false,
     });
 
-    // Instraction to send SOL from the buyer to the shop
+    // Instraction to send SOL from the shop to the buyer
     const transferSolInstruction = SystemProgram.transfer({
-      fromPubkey: buyerPublicKey,
-      toPubkey: shopPublicKey,
-      lamports: 1000000,
+      fromPubkey: shopPublicKey,
+      toPubkey: buyerPublicKey,
+      lamports: 100000,
     });
 
     transferSolInstruction.keys.push({
-      pubkey: buyerPublicKey,
+      pubkey: shopPublicKey,
       isSigner: true,
       isWritable: false,
     });
