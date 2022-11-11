@@ -24,7 +24,7 @@ NEXT_PUBLIC_DEVNET_NODE=
 
 You can use Solana public rpc node such as `https://api.devnet.solana.com` or use your private rpc node.
 
-Check out *[RPC provides](https://docs.metaplex.com/resources/rpc-providers)* for more details.
+Check out *[RPC providers](https://docs.metaplex.com/resources/rpc-providers)* for more details.
 
 **Install dependencies:**
 
