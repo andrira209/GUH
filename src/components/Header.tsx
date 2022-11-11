@@ -53,6 +53,12 @@ export default function Header() {
           >
             Donate
           </Navbar.Link>
+          <Navbar.Link
+            href="/help"
+            active={router.pathname.startsWith("/help")}
+          >
+            Help
+          </Navbar.Link>
         </Navbar.Collapse>
         <div className="flex items-center ml-4 pl-4 gap-4 border-l-2 border-gray-100 dark:border-gray-700">
           <DarkThemeToggle />
