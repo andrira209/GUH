@@ -7,11 +7,15 @@ export default function Layout({ children }: PropsWithChildren<{}>) {
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-white dark:bg-gray-900">
       <Header />
-      <main className="flex flex-col h-full mb-auto overflow-hidden">
-        <img src="/wave.svg" alt="background" className="absolute w-full bottom-0 z-0"/>
+      <main className="flex flex-col mb-auto overflow-auto pb-8">
+        <img
+          src="/wave.svg"
+          alt="background"
+          className="absolute w-full bottom-0 z-0"
+        />
         {children}
-        <Footer />
       </main>
+      <Footer />
     </div>
   );
 }

@@ -1,14 +1,6 @@
 import { GatewayStatus, useGateway } from "@civic/solana-gateway-react";
-import {
-  findGatewayToken,
-  getGatewayTokenAddressForOwnerAndGatekeeperNetwork,
-  onGatewayTokenChange,
-  removeAccountChangeListener,
-} from "@identity.com/solana-gateway-ts";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Button, Spinner } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
-import { CIVIC_GATEKEEPER_NETWORK } from "../data/addresses";
+import { useEffect, useState } from "react";
 import { CandyMachineAccount } from "../utils";
 
 interface Props {
@@ -28,9 +20,6 @@ export default function MintButton({
   isActive,
   isSoldOut,
 }: Props) {
-  const wallet = useWallet();
-  const { connection } = useConnection();
-
   const [isVerifying, setIsVerifying] = useState(false);
   const { requestGatewayToken, gatewayStatus } = useGateway();
   const [clicked, setClicked] = useState(false);
@@ -84,7 +73,7 @@ export default function MintButton({
         isVerifying ? (
           "VERIFYING..."
         ) : isMinting || clicked ? (
-          <Spinner />
+          <Spinner color="failure"/>
         ) : (
           "MINT"
         )
@@ -99,10 +88,4 @@ export default function MintButton({
   );
 }
 
-function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-}
+

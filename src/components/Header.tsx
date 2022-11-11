@@ -19,7 +19,7 @@ export default function Header() {
           alt="App Logo"
         />
         <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-          Solana Pay Demo
+          Funny Solana Pay
         </span>
       </Navbar.Brand>
       <Navbar.Toggle />
@@ -52,6 +52,12 @@ export default function Header() {
             active={router.pathname.startsWith("/donate")}
           >
             Donate
+          </Navbar.Link>
+          <Navbar.Link
+            href="/help"
+            active={router.pathname.startsWith("/help")}
+          >
+            Help
           </Navbar.Link>
         </Navbar.Collapse>
         <div className="flex items-center ml-4 pl-4 gap-4 border-l-2 border-gray-100 dark:border-gray-700">
