@@ -16,39 +16,23 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <meta
-            property="og:url"
-            content="https://funny-solana-pay.netlify.app"
-            key="ogurl"
-          />
-          <meta property="og:title" content="Funny Solana Pay" key="ogtitle" />
-          <meta
-            property="og:site_name"
-            content="Funny Solana Pay"
-            key="ogsitename"
-          />
-          <meta
-            property="og:description"
-            content="Solana Pay decentralized application"
-            key="ogdesc"
-          />
-          <meta
-            property="og:image"
-            content="https://funny-solana-pay.netlify.app/page.png"
-            key="ogimage"
-          />
-          <meta property="og:type" content="article" key="ogtype" />
-          <meta
-            name="twitter:card"
-            content="summary_large_image"
-            key="twcard"
-          />
-          <meta name="twitter:site" content="Funny Solana Pay" key="twsite" />
-          <meta
-            property="tw:image"
-            content="https://funny-solana-pay.netlify.app/page.png"
-            key="twimage"
-          />
+          {/* <!-- HTML Meta Tags --> */}
+          <meta name="description" content="Solana Pay decentralized application" />
+
+          {/* <!-- Facebook Meta Tags --> */}
+          <meta property="og:url" content="https://funny-solana-pay.netlify.app" />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="Funny Solana Pay" />
+          <meta property="og:description" content="Solana Pay decentralized application" />
+          <meta property="og:image" content="https://funny-solana-pay.netlify.app/page.png" />
+
+          {/* <!-- Twitter Meta Tags --> */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta property="twitter:domain" content="funny-solana-pay.netlify.app" />
+          <meta property="twitter:url" content="https://funny-solana-pay.netlify.app" />
+          <meta name="twitter:title" content="Funny Solana Pay" />
+          <meta name="twitter:description" content="Solana Pay decentralized application" />
+          <meta name="twitter:image" content="https://funny-solana-pay.netlify.app/page.png" />
         </Head>
         <body>
           <Main />
