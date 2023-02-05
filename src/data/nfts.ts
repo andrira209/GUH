@@ -25,8 +25,8 @@ export const nfts = [
     },
   },
   {
-    mint: "9sYCmuxQk8QAoFrQoZCW8yRccW8z1nd7Tv36d7DemKmK",
-    owner: "EMvY6yGsb9s5TcBt9ppg1yJ6GJVnkTBeSv5JZDwvgptr",
+    mint: "7ZeZrC7EQtdo5Bov8wpYHHwT9e7AD3htRwmXg1UL6WNg",
+    owner: "7ZeZrC7EQtdo5Bov8wpYHHwT9e7AD3htRwmXg1UL6WNg",
     name: "y00t #10314",
     symbol: "Y00T",
     description:
@@ -50,8 +50,8 @@ export const nfts = [
     },
   },
   {
-    mint: "EyzKyD6C58n6SZJTR4vVWneHKxGRixPDLgkvNZVjsxJx",
-    owner: "EMvY6yGsb9s5TcBt9ppg1yJ6GJVnkTBeSv5JZDwvgptr",
+    mint: "7ZeZrC7EQtdo5Bov8wpYHHwT9e7AD3htRwmXg1UL6WNg",
+    owner: "7ZeZrC7EQtdo5Bov8wpYHHwT9e7AD3htRwmXg1UL6WNg",
     name: "y00t #1740",
     symbol: "Y00T",
     description:
